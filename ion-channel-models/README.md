@@ -11,4 +11,4 @@
 
 ### Tests
 
-- `test-model.py`: Simple test for default model setting and forward model simulations.
+- `test-models.py`: Simple test for default model setting and forward model simulations.
