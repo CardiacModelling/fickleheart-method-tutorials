@@ -1,0 +1,84 @@
+[[model]]
+author: Chon Lok Lei
+name: model_B
+desc: """
+Myokit version of model B: Oehmen et al. 2002 model.
+"""
+# Initial values
+ikr.C2 = 1
+ikr.C1 = 0
+ikr.O = 0
+
+#
+# Simulation engine variables
+#
+[engine]
+time = 0 bind time
+pace = 0 bind pace
+
+#
+# Membrane potential
+#
+[membrane]
+V = engine.pace
+    desc: membrane potential
+    in [mV]
+
+#
+# Model
+#
+[ikr]
+use membrane.V
+IKr = g * O * (V - rev.EK)
+I = 1 - (O + C1 + C2)
+a3 = p5
+b3 = p6
+a1 = p1 * exp( p2 * V)
+b1 = p3 * exp(-p4 * V)
+a2 = p7 * exp( p8 * V)
+b2 = p9 * exp(-p10 * V)
+
+dot(C1) = b1 * O + a3 * C2 -(a1 + b3) * C1
+dot(C2) = b3 * C1 - a3 * C2
+dot(O) = b2 * I + a1 * C1 - (a2 + b1) * O
+
+p1 = 0.0787 [1/ms]
+p2 = 0.0378 [1/mV]
+p3 = 0.0035 [1/ms]
+p4 = 0.0252 [1/mV]
+p5 = 0.0176 [1/ms]
+p6 = 0.684 [1/mV]
+p7 = 0.2977 [1/ms]
+p8 = 0.0164 [1/mV]
+p9 = 0.0862 [1/ms]
+p10 = 0.0454 [1/mV]
+g = 0.1524 [pA/mV]
+
+n_params = 11
+
+
+#
+# Potassium concentrations
+#
+[potassium]
+Ki = 110 [mM]
+Ko = 4 [mM]
+
+#
+# Reversal parameters
+#
+[rev]
+use phys.RTF
+EK = RTF * log(potassium.Ko / potassium.Ki)
+    in [V]
+
+
+#
+# Physical constants
+#
+[phys]
+R = 8.314472 [J/mol/K]
+#T = 310 [K]  # 36-37oC (BT)
+T = 297 [K]  # 24oC (RT)
+F = 9.64853415e4 [C/mol]
+RTF = R * T / F * 1e3 in [mV]
