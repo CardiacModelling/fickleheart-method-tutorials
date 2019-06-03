@@ -43,6 +43,9 @@ modelc = m.Model(infoc.model_file,
         temperature=273.15 + infoc.temperature,  # K
         )
 
+#
+# Activation step protocol
+#
 # Load protocol
 test_prt = [-80, 200, 20, 500, -40, 500, -80, 200]
 dt = 0.1
@@ -70,5 +73,73 @@ plt.xlabel('Time (ms)')
 plt.ylabel('Current (pA)')
 
 plt.subplots_adjust(hspace=0)
-plt.savefig('%s/test-models.png' % (savedir), bbox_inches='tight')
+plt.savefig('%s/test-models-activation.png' % (savedir), bbox_inches='tight')
+plt.close()
+
+#
+# Sine wave protocol
+#
+# Load protocol
+test_prt = np.loadtxt('./protocol-time-series/sinewave-ramp.csv', skiprows=1,
+        delimiter=',')
+test_t = test_prt[:, 0]
+test_prt = test_prt[:, 1]
+
+# Update protocol
+modela.set_fixed_form_voltage_protocol(test_prt, test_t)
+modelb.set_fixed_form_voltage_protocol(test_prt, test_t)
+modelc.set_fixed_form_voltage_protocol(test_prt, test_t)
+
+# Plot
+plt.figure(figsize=(8, 6))
+plt.subplot(211)
+plt.plot(test_t, modela.voltage(test_t), c='#7f7f7f')
+plt.plot(test_t, modelb.voltage(test_t), c='#7f7f7f')
+plt.plot(test_t, modelc.voltage(test_t), c='#7f7f7f')
+plt.ylabel('Voltage (mV)')
+
+plt.subplot(212)
+plt.plot(test_t, modela.simulate(infoa.base_param, test_t), label='Model A')
+plt.plot(test_t, modelb.simulate(infob.base_param, test_t), label='Model B')
+plt.plot(test_t, modelc.simulate(infoc.base_param, test_t), label='Model C')
+plt.legend()
+plt.xlabel('Time (ms)')
+plt.ylabel('Current (pA)')
+
+plt.subplots_adjust(hspace=0)
+plt.savefig('%s/test-models-sinewave.png' % (savedir), bbox_inches='tight')
+plt.close()
+
+#
+# AP protocols
+#
+# Load protocol
+test_prt = np.loadtxt('./protocol-time-series/ap.csv', skiprows=1,
+        delimiter=',')
+test_t = test_prt[:, 0]
+test_prt = test_prt[:, 1]
+
+# Update protocol
+modela.set_fixed_form_voltage_protocol(test_prt, test_t)
+modelb.set_fixed_form_voltage_protocol(test_prt, test_t)
+modelc.set_fixed_form_voltage_protocol(test_prt, test_t)
+
+# Plot
+plt.figure(figsize=(8, 6))
+plt.subplot(211)
+plt.plot(test_t, modela.voltage(test_t), c='#7f7f7f')
+plt.plot(test_t, modelb.voltage(test_t), c='#7f7f7f')
+plt.plot(test_t, modelc.voltage(test_t), c='#7f7f7f')
+plt.ylabel('Voltage (mV)')
+
+plt.subplot(212)
+plt.plot(test_t, modela.simulate(infoa.base_param, test_t), label='Model A')
+plt.plot(test_t, modelb.simulate(infob.base_param, test_t), label='Model B')
+plt.plot(test_t, modelc.simulate(infoc.base_param, test_t), label='Model C')
+plt.legend()
+plt.xlabel('Time (ms)')
+plt.ylabel('Current (pA)')
+
+plt.subplots_adjust(hspace=0)
+plt.savefig('%s/test-models-ap.png' % (savedir), bbox_inches='tight')
 plt.close()
