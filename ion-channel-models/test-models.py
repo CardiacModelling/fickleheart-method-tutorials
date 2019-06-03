@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import print_function
 import sys
-sys.path.append('../lib')
+sys.path.append('./method')
 import os
 import numpy as np
 import matplotlib

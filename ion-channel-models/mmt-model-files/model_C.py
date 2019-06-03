@@ -69,7 +69,7 @@ ions_conc = {
 
 # Prior
 import sys
-sys.path.append('../')  # where priors module is
+sys.path.append('../method')  # where priors module is
 from priors import ModelCLogPrior as LogPrior
 
 # Temperature of the experiment
