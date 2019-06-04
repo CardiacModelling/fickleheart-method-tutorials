@@ -10,8 +10,17 @@ We are interested in selecting the model that 'best describe' the ground truth (
 - Model B (candidate model): Oehmen et al. 2002 model.
 - Model C (ground truth model): Mazhari et al. 2001 model.
 
-### Run the tutorial
+### Use of protocol
 
+In this tutorial, we split our protocols into calibration and validation uses.
+
+- Protocol `sinewave`: calibration.
+- Protocol `activation`: validation.
+- Protocol `ap`: validation.
+
+## Run the tutorial
+
+1. Run `generate-data.py` to generate synthetic data with iid Gaussian noise (create `data`).
 
 ### Output
 
