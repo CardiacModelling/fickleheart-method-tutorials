@@ -2,7 +2,6 @@
 name: tnnp-2004
 author: Chon Lok Lei
 desc: """
-    (Endo)
     References:
     [1] A model for human ventricular tissue,
     K.H.W.J. ten Tusscher, D. Noble, P.J. Noble, and A.V. Panfilov,
@@ -183,10 +182,10 @@ tau_m = 1 [ms] * alpha_m * beta_m
     in [ms]
 
 [inward_rectifier_potassium_current]
-alpha_K1 = 0.1 / (1 + exp(0.06 [1/mV] * (membrane.V - reversal_potentials.E_K - 200 [mV])))
-    in [1]
-beta_K1 = (3 * exp(0.0002 [1/mV] * (membrane.V - reversal_potentials.E_K + 100 [mV])) + exp(0.1 [1/mV] * (membrane.V - reversal_potentials.E_K - 10 [mV]))) / (1 + exp(-0.5 [1/mV] * (membrane.V - reversal_potentials.E_K)))
-    in [1]
+alpha_K1 = 0.1 [mS/uF] / (1 + exp(0.06 [1/mV] * (membrane.V - reversal_potentials.E_K - 200 [mV])))
+    in [mS/uF]
+beta_K1 = (3 [mS/uF] * exp(0.0002 [1/mV] * (membrane.V - reversal_potentials.E_K + 100 [mV])) + 1 [mS/uF] * exp(0.1 [1/mV] * (membrane.V - reversal_potentials.E_K - 10 [mV]))) / (1 + exp(-0.5 [1/mV] * (membrane.V - reversal_potentials.E_K)))
+    in [mS/uF]
 g_K1 = 5.405
     in [mS/uF]
 i_K1 = g_K1 * xK1_inf * sqrt(potassium_dynamics.K_o / 5.4 [mM]) * (membrane.V - reversal_potentials.E_K)
@@ -203,7 +202,7 @@ R = 8314.472
     in [J/mol/K]
 T = 310
     in [K]
-dot(V) = -1 / 1 * (inward_rectifier_potassium_current.i_K1 + transient_outward_current.i_to + rapid_time_dependent_potassium_current.i_Kr + slow_time_dependent_potassium_current.i_Ks + L_type_Ca_current.i_CaL + sodium_potassium_pump_current.i_NaK + fast_sodium_current.i_Na + sodium_background_current.i_b_Na + sodium_calcium_exchanger_current.i_NaCa + calcium_background_current.i_b_Ca + potassium_pump_current.i_p_K + calcium_pump_current.i_p_Ca + i_Stim)
+dot(V) = -(inward_rectifier_potassium_current.i_K1 + transient_outward_current.i_to + rapid_time_dependent_potassium_current.i_Kr + slow_time_dependent_potassium_current.i_Ks + L_type_Ca_current.i_CaL + sodium_potassium_pump_current.i_NaK + fast_sodium_current.i_Na + sodium_background_current.i_b_Na + sodium_calcium_exchanger_current.i_NaCa + calcium_background_current.i_b_Ca + potassium_pump_current.i_p_K + calcium_pump_current.i_p_Ca + i_Stim)
     in [mV]
 V_c = 0.016404
     in [um^3]
@@ -221,7 +220,7 @@ stim_amplitude = -52
 #    in [ms]
 
 [potassium_dynamics]
-dot(K_i) = -1 [1 (1000000000)] * (inward_rectifier_potassium_current.i_K1 + transient_outward_current.i_to + rapid_time_dependent_potassium_current.i_Kr + slow_time_dependent_potassium_current.i_Ks + potassium_pump_current.i_p_K + membrane.i_Stim - 2 * sodium_potassium_pump_current.i_NaK) / (1 [1 (1000000000000000)] * membrane.V_c * membrane.F) * membrane.Cm
+dot(K_i) = -1 [1 (1000000000)] * (inward_rectifier_potassium_current.i_K1 + transient_outward_current.i_to + rapid_time_dependent_potassium_current.i_Kr + slow_time_dependent_potassium_current.i_Ks + potassium_pump_current.i_p_K + membrane.i_Stim - 2 * sodium_potassium_pump_current.i_NaK) * membrane.Cm / (1 [1 (1000000000000000)] * membrane.V_c * membrane.F)
     in [mM]
 K_o = 5.4
     in [mM]
@@ -315,7 +314,7 @@ i_NaCa = K_NaCa * (exp(gamma * membrane.V * membrane.F / (membrane.R * membrane.
     in [A/F]
 
 [sodium_dynamics]
-dot(Na_i) = -1 [1 (1000000000)] * (fast_sodium_current.i_Na + sodium_background_current.i_b_Na + 3 * sodium_potassium_pump_current.i_NaK + 3 * sodium_calcium_exchanger_current.i_NaCa) / (1 [1 (1000000000000000)] * membrane.V_c * membrane.F) * membrane.Cm
+dot(Na_i) = -1 [1 (1000000000)] * (fast_sodium_current.i_Na + sodium_background_current.i_b_Na + 3 * sodium_potassium_pump_current.i_NaK + 3 * sodium_calcium_exchanger_current.i_NaCa) * membrane.Cm / (1 [1 (1000000000000000)] * membrane.V_c * membrane.F)
     in [mM]
 Na_o = 140
     in [mM]
@@ -331,7 +330,7 @@ i_NaK = P_NaK * potassium_dynamics.K_o / (potassium_dynamics.K_o + K_mk) * sodiu
     in [A/F]
 
 [transient_outward_current]
-g_to = 0.073
+g_to = 0.294
     in [mS/uF]
 i_to = g_to * transient_outward_current_r_gate.r * transient_outward_current_s_gate.s * (membrane.V - reversal_potentials.E_K)
     in [A/F]
@@ -347,9 +346,9 @@ tau_r = 9.5 [ms] * exp(-(membrane.V + 40 [mV]) ^ 2 / 1800 [mV^2]) + 0.8 [ms]
 [transient_outward_current_s_gate]
 dot(s) = (s_inf - s) / tau_s
     in [1]
-s_inf = 1 / (1 + exp((membrane.V + 28 [mV]) / 5 [mV]))
+s_inf = 1 / (1 + exp((membrane.V + 20 [mV]) / 5 [mV]))
     in [1]
-tau_s = 1000 [ms] * exp(-(membrane.V + 67 [mV]) ^ 2 / 1000 [mV^2]) + 8 [ms]
+tau_s = 85 [ms] * exp(-(membrane.V + 45 [mV]) ^ 2 / 320 [mV^2]) + 5 [ms] / (1 + exp((membrane.V - 20 [mV]) / 5 [mV])) + 3 [ms]
     in [ms]
 
 [[protocol]]

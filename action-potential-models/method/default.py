@@ -61,6 +61,7 @@ ohara_2011_current = {
 model_current = {
     'hund-2004.mmt': hund_2004_current,
     'tnnp-2004.mmt': tnnp_2004_current,
+    'tnnp-2004-epi.mmt': tnnp_2004_current,
     'fink-2008.mmt': fink_2008_current,
     'ohara-2011.mmt': ohara_2011_current,
 }
@@ -122,6 +123,7 @@ ohara_2011_conductance = {
 model_conductance = {
     'hund-2004.mmt': hund_2004_conductance,
     'tnnp-2004.mmt': tnnp_2004_conductance,
+    'tnnp-2004-epi.mmt': tnnp_2004_conductance,
     'fink-2008.mmt': fink_2008_conductance,
     'ohara-2011.mmt': ohara_2011_conductance,
 }
@@ -139,6 +141,13 @@ model_ion = {
                     ('ion.Cl_o',100),
                     ], # Check cloride too...
     'tnnp-2004.mmt': [('sodium_dynamics.Na_i',10),
+                    ('sodium_dynamics.Na_o',150),
+                    ('potassium_dynamics.K_i',110),
+                    ('potassium_dynamics.K_o',4),
+                    ('calcium_dynamics.Ca_i',1e-5),
+                    ('calcium_dynamics.Ca_o',1.2),
+                    ],
+    'tnnp-2004-epi.mmt': [('sodium_dynamics.Na_i',10),
                     ('sodium_dynamics.Na_o',150),
                     ('potassium_dynamics.K_i',110),
                     ('potassium_dynamics.K_o',4),
@@ -164,6 +173,7 @@ model_ion = {
 model_stim_amp = {
     # 'mmt_file_name': (stim_amp, value)
     'tnnp-2004.mmt': ('membrane.stim_amplitude', -52),
+    'tnnp-2004-epi.mmt': ('membrane.stim_amplitude', -52),
     'fink-2008.mmt': ('stimulus.stim_amplitude', -12),
     'ohara-2011.mmt': ('stimulus.amplitude', -80),
     }
@@ -171,6 +181,7 @@ model_stim_amp = {
 model_stim_setup = {
     # 'mmt_file_name': (stim_dur, stim_off, cycle_length, norm_stim_amp)
     'tnnp-2004.mmt': (1, 50, 1000, 1),
+    'tnnp-2004-epi.mmt': (1, 50, 1000, 1),
     'fink-2008.mmt': (1, 50, 1000, 5),
     'ohara-2011.mmt': (1, 50, 1000, 1),
     }
