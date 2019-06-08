@@ -80,18 +80,15 @@ class Model(pints.ForwardModel):
         'inak.s', #'if.s', 
         ]
     
-    def __init__(self, model_file, prepace=10, stimulate=True, cl=None,
-            stim_dur=None, stim_offset=None, stim_amp=None, transform=None,
-            max_evaluation_time=5, norm=False):
+    def __init__(self, model_file, prepace=10, stimulate=True, stim_seq=None,
+            transform=None, max_evaluation_time=5, norm=False):
         """
         # model_file: mmt model file for myokit; main units: mV, ms, pA.
         # prepace: number of pre-pace before recording the simulated AP.
         # stimulate: bool, if True, apply stimulus.
-        # cl: cycle length of stimulus.
-        # stim_dur: stimulus duration.
-        # stim_offset: stimulus offset (after each pace).
-        # stim_amp: stimulus (normalised) amplitude (based on the model
-        #           default stimulus amplitude).
+        # stim_seq: array-like, a sequence of stimulus in
+        #           [(stim_level1, duration1), (stim_level2, duration2)...]
+        #           e.g. [(0, 50), (1, 5), (0, 945)]
         # transform: transform search space parameters to model parameters.
         # max_evaluation_time: maximum time (in second) allowed for one
         #                      simulate() call.
@@ -103,29 +100,49 @@ class Model(pints.ForwardModel):
         print('Initialising model %s...' % self._model_file_name)
         self._prepace = prepace
         self._stimulate = stimulate
+        self._stim_seq = stim_seq
         self.transform = transform
+        self.presimulation = myokit.Simulation(self._model)
         self.simulation = myokit.Simulation(self._model)
+
+        # Set stimulus default level
+        try:
+            stim_amp_var, stim_amp_val = model_stim_amp[self._model_file_name]
+            self.presimulation.set_constant(stim_amp_var, stim_amp_val)
+            self.simulation.set_constant(stim_amp_var, stim_amp_val)
+        except:
+            raise ValueError('Model stimulus do not exist in the given ' \
+                    + 'model')
+
+        # Add prepace stimulus
+        stim_dur, stim_offset, cl, stim_amp = \
+                model_stim_setup[self._model_file_name]
+        self._prepace_cl = cl
+        preprotocol = myokit.pacing.blocktrain(period=self._prepace_cl,
+                                               duration=stim_dur, 
+                                               offset=stim_offset,
+                                               level=stim_amp)
+        self.presimulation.set_protocol(preprotocol)
+        del(preprotocol)
+
         # Add stimulus
         if self._stimulate:
-            if stim_dur is None:
-                stim_dur = model_stim_setup[self._model_file_name][0]
-            if stim_offset is None:
-                stim_offset = model_stim_setup[self._model_file_name][1]
-            if cl is None:
-                cl = model_stim_setup[self._model_file_name][2]
-            if stim_amp is None:
-                stim_amp = model_stim_setup[self._model_file_name][3]
-            self._cl = cl
-            protocol = myokit.pacing.blocktrain(period=self._cl, 
-                                                duration=stim_dur, 
-                                                offset=stim_offset,
-                                                level=stim_amp)
-            self.simulation.set_protocol(protocol)
-        else:
-            if cl is None:
-                self._cl = 1000
+            if stim_seq is not None:
+                protocol = myokit.Protocol()
+                for l, t in self._stim_seq:
+                    if l > 0:
+                        protocol.add_step(l * stim_amp, stim_dur)
+                    else:
+                        protocol.add_step(l, t)
+                self.simulation.set_protocol(protocol)
             else:
-                self._cl = cl
+                protocol = myokit.pacing.blocktrain(period=cl,
+                                                    duration=stim_dur, 
+                                                    offset=stim_offset,
+                                                    level=stim_amp)
+                self.simulation.set_protocol(protocol)
+            del(protocol)
+
         # Create a order-matched conductance list
         try:
             self._conductance = []
@@ -136,6 +153,7 @@ class Model(pints.ForwardModel):
             del(p, p2g)
         except:
             raise ValueError('Model conductances do not match parameters')
+
         # Get original parameters
         try:
             self.original = []
@@ -146,14 +164,7 @@ class Model(pints.ForwardModel):
         except:
             raise ValueError('Model conductances do not exist in the given ' \
                     + 'model')
-        # Set stimulus
-        if self._stimulate:
-            try:
-                s = model_stim_amp[self._model_file_name]
-                self.simulation.set_constant(s[0], s[1])
-            except:
-                raise ValueError('Model stimulus do not exist in the given ' \
-                        + 'model')
+
         # Store model original state -- can be something else later!
         self.original_state = self.simulation.state()
         # if normalise
@@ -170,33 +181,38 @@ class Model(pints.ForwardModel):
         Generate APs using the given scalings.
         """
         parameter = np.array(parameter)
+
         # Update model parameters
         if self.transform is not None:
             parameters = self.transform(parameters)
         # Simulate with modified model
         for i, name in enumerate(self._conductance):
-            self.simulation.set_constant(name, 
-                                         parameter[i] * self.original[i])
+            self.presimulation.set_constant(name,
+                    parameter[i] * self.original[i])
+            self.simulation.set_constant(name,
+                    parameter[i] * self.original[i])
+
         # Run
+        self.presimulation.reset()
         self.simulation.reset()
         # As myokit.org specified, in AP simulation mode, simulation.pre()
         # sorts the end of simulation state as the new default state, so
         # simulation.reset() only reset to the 'new' default state. It need
         # a manual reset of the state using simulation.set_state() to the 
         # originally stored state.
-        self.simulation.set_state(self.original_state)
+        self.presimulation.set_state(self.original_state)
         try:
             # Pre-pace for some beats
-            self.simulation.pre(self._prepace * self._cl)
+            self.presimulation.pre(self._prepace * self._prepace_cl)
+            self.simulation.set_state(self.presimulation.state())
             # Log some beats
             d = self.simulation.run(np.max(times)+0.02, 
                 log_times = times, 
-                log = [
-                       'membrane.V',
-                      ],
+                log = ['membrane.V'],
                 ).npview()
         except myokit.SimulationError:
             return float('inf')
+
         if self.norm:
             return self.normalise(d['membrane.V'])
         else:
