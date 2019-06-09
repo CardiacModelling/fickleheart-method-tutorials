@@ -211,7 +211,9 @@ class Model(pints.ForwardModel):
                 #log_interval = 0.025
                 ).npview()
         except myokit.SimulationError:
-            return float('inf')
+            # return float('inf')
+            return np.full(times.shape, float('inf'))
+
         # Return
         return d['membrane.V'] 
     
