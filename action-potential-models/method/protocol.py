@@ -36,8 +36,9 @@ randstim_times = np.arange(0, np.sum(np.asarray(randstim)[:, 1]), dt)
 from model import parameters
 ikridx = parameters.index('ikr.s')
 
+hergblock_fraction = np.array([0, 0.25, 0.5, 0.75, 1.0])
 hergblock = np.ones((5, len(parameters)))
-hergblock[:, ikridx] = 1. - np.array([0, 0.25, 0.5, 0.75, 1.0])
+hergblock[:, ikridx] = 1. - hergblock_fraction
 # print(hergblock * (2. * np.ones(len(parameters))))
 
 stim1hz_hergblock = []
@@ -47,4 +48,22 @@ stim1hz_hergblock.append((0, 949))
 
 stim1hz_hergblock_times = np.arange(0,
         np.sum(np.asarray(stim1hz_hergblock)[:, 1]), dt)
+
+def hergblock_simulate(model, parameters, times):
+    """
+    # Input
+    # =====
+    # model: Pints forward model.
+    # parameters: model parameters for simulation.
+    # times: times for simulation.
+    #
+    # Output
+    # =====
+    # [simulated_results_block_1, simulated_results_block_2, ...]
+    """
+    out = np.zeros((len(hergblock), len(times)))
+    for i, b in enumerate(hergblock):
+        p = np.asarray(parameters) * b
+        out[i, :] = model.simulate(p, times)
+    return out
 
