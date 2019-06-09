@@ -53,6 +53,7 @@ if savefig:
     plt.savefig('%s/test-model-defaultstim.png'%savedir)
 else:
     plt.show()
+plt.close()
 
 del(model_tnnp, model_tnnpw, model_ohara)
 
@@ -60,7 +61,7 @@ del(model_tnnp, model_tnnpw, model_ohara)
 # Input stimuli
 np.random.seed(101)
 random_stim = [(0, 50)]
-for r in np.random.uniform(250, 700, size=10):
+for r in np.random.uniform(150, 600, size=10):
     random_stim.append((1, 5))  # stim duration use default
     random_stim.append((0, r))
 random_stim.append((1, 5))
@@ -105,3 +106,5 @@ if savefig:
     plt.savefig('%s/test-model-randstim.png'%savedir)
 else:
     plt.show()
+plt.close()
+
