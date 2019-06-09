@@ -1,9 +1,10 @@
 # Action potential model tutorial
 
 A typical fitting of cardiac action potential model is by scaling/updating the maximum conductance parameters of an existing action potential model.
-This method usually assumes that the underlying kinetics of each ion channel current is correct and perfect.
+This method usually assumes that the underlying kinetics of each ion channel current within the candidate model is correct and perfect (i.e. match perfectly to the ground truth).
 Here we explicitly impose that the underlying kinetics of each ion channel current is _imperfect_.
 Then we will _ignore_ the discrepancy and proceed with our analysis with the incorrect assumption (i.e. without acknowledging model discrepancy).
+Finally, we compare the prediction of those calibrated candidate models under our context of use (COU) to the ground truth (model).
 
 ### Models
 
