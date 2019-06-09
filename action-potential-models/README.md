@@ -16,8 +16,8 @@ Then we will _ignore_ the discrepancy and process will our analysis with the inc
 In this tutorial, we split our protocols into calibration and COU uses.
 Note that here we do not have validation protocol, as to emphasise the importance of validation.
 
-- Protocol `1hz`: calibration.
-- Protocol `2hz`: calibration.
+- Protocol `stim1hz`: calibration.
+- Protocol `stim2hz`: calibration.
 - Protocol `randstim`: calibration.
 - Protocol `hergblock`: COU prediction.
 - Protocol `current`: COU prediction.

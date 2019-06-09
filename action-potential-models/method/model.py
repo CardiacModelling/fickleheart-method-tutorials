@@ -70,16 +70,18 @@ class Timeout(myokit.ProgressReporter):
         return self.b.time() < self.max_time
 
 
+parameters = [
+        'ina.s', 'ical.s', 'ikr.s', 'iks.s', 'ito.s', 'inaca.s', 'ik1.s',
+        'inak.s', #'if.s',
+        ]
+
+
 #
 # Create ForwardModel
 #
 
 class Model(pints.ForwardModel):
-    parameters = [
-        'ina.s', 'ical.s', 'ikr.s', 'iks.s', 'ito.s', 'inaca.s', 'ik1.s',
-        'inak.s', #'if.s', 
-        ]
-    
+
     def __init__(self, model_file, prepace=10, stimulate=True, stim_seq=None,
             transform=None, max_evaluation_time=5, norm=False):
         """
@@ -104,6 +106,7 @@ class Model(pints.ForwardModel):
         self.transform = transform
         self.presimulation = myokit.Simulation(self._model)
         self.simulation = myokit.Simulation(self._model)
+        self.parameters = parameters
 
         # Set stimulus default level
         try:

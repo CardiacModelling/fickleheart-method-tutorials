@@ -61,11 +61,11 @@ del(model_tnnp, model_tnnpw, model_ohara)
 # Input stimuli
 np.random.seed(101)
 random_stim = [(0, 50)]
-for r in np.random.uniform(150, 600, size=10):
-    random_stim.append((1, 5))  # stim duration use default
+for r in np.random.uniform(100, 600, size=10):
+    random_stim.append((1, 1))  # stim duration use default
     random_stim.append((0, r))
-random_stim.append((1, 5))
-random_stim.append((0, 1000))
+random_stim.append((1, 1))  # stim duration use default
+random_stim.append((0, 500))
 
 times = np.arange(0, np.sum(np.asarray(random_stim)[:, 1]), 0.2)
 
