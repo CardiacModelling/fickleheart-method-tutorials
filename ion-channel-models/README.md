@@ -26,6 +26,7 @@ In this tutorial, we split our protocols into calibration and validation uses.
 
 - `out`: Fitting output etc.
 - `fig`: Output generated figures.
+- `data`: Data generated from the ground truth model.
 
 ### Utilities
 

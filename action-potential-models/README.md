@@ -31,6 +31,7 @@ Note that here we do not have validation protocol, as to emphasise the importanc
 
 - `out`: Fitting output etc.
 - `fig`: Output generated figures.
+- `data`: Data generated from the ground truth model.
 
 ### Utilities
 
