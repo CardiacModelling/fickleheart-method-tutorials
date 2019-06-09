@@ -1,5 +1,7 @@
 # Calibration methods tutorials (Fickle Heart 2019)
 
+This repo contains the code for reproducing the results in the tutorials in the Fickle Heart 2019 calibration method paper. 
+
 ### Requirements
 
 The code requires Python (2.7 or 3.6+) and two dependencies:
@@ -9,8 +11,12 @@ The code requires Python (2.7 or 3.6+) and two dependencies:
 
 ## Ion channel model example
 
+See [ion-channel-models](./ion-channel-models).
+
 
 ## Action potential model example
+
+See [action-potential-models](./action-potential-models).
 
 
 ## Acknowledging this work
