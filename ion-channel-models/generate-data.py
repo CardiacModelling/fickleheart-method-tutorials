@@ -35,26 +35,26 @@ modelc = m.Model(infoc.model_file,
 # Activation step protocol
 #
 # Load protocol
-test_prt = [-80, 200, 20, 500, -40, 500, -80, 200]
+protocol = [-80, 200, 20, 500, -40, 500, -80, 200]
 dt = 0.1
-test_t = np.arange(0, np.sum(test_prt[1::2]), dt)
+times = np.arange(0, np.sum(protocol[1::2]), dt)
 
 # Update protocol
-modelc.set_voltage_protocol(test_prt)
+modelc.set_voltage_protocol(protocol)
 
 # Simulate and add noise
-simulated_data = modelc.simulate(infoc.base_param, test_t)
+simulated_data = modelc.simulate(infoc.base_param, times)
 simulated_data += np.random.normal(0, iid_noise_sigma,
         size=simulated_data.shape)
 
 # Plot
 plt.figure(figsize=(8, 6))
 plt.subplot(211)
-plt.plot(test_t, modelc.voltage(test_t), c='#7f7f7f')
+plt.plot(times, modelc.voltage(times), c='#7f7f7f')
 plt.ylabel('Voltage (mV)')
 
 plt.subplot(212)
-plt.plot(test_t, simulated_data, label='Model C')
+plt.plot(times, simulated_data, label='Model C')
 plt.legend()
 plt.xlabel('Time (ms)')
 plt.ylabel('Current (pA)')
@@ -65,82 +65,82 @@ plt.close()
 
 # Save
 np.savetxt('%s/data-activation.csv' % (savedir),
-        np.array([test_t, simulated_data]).T, delimiter=',', comments='',
+        np.array([times, simulated_data]).T, delimiter=',', comments='',
         header='\"time\",\"current\"')
 
 #
 # Sine wave protocol
 #
 # Load protocol
-test_prt = np.loadtxt('./protocol-time-series/sinewave-ramp.csv', skiprows=1,
+protocol = np.loadtxt('./protocol-time-series/sinewave-ramp.csv', skiprows=1,
         delimiter=',')
-test_t = test_prt[:, 0]
-test_prt = test_prt[:, 1]
+times = protocol[:, 0]
+protocol = protocol[:, 1]
 
 # Update protocol
-modelc.set_fixed_form_voltage_protocol(test_prt, test_t)
+modelc.set_fixed_form_voltage_protocol(protocol, times)
 
 # Simulate and add noise
-simulated_data = modelc.simulate(infoc.base_param, test_t)
+simulated_data = modelc.simulate(infoc.base_param, times)
 simulated_data += np.random.normal(0, iid_noise_sigma,
         size=simulated_data.shape)
 
 # Plot
 plt.figure(figsize=(8, 6))
 plt.subplot(211)
-plt.plot(test_t, modelc.voltage(test_t), c='#7f7f7f')
+plt.plot(times, modelc.voltage(times), c='#7f7f7f')
 plt.ylabel('Voltage (mV)')
 
 plt.subplot(212)
-plt.plot(test_t, simulated_data, label='Model C')
+plt.plot(times, simulated_data, label='Model C')
 plt.legend()
 plt.xlabel('Time (ms)')
 plt.ylabel('Current (pA)')
 
 plt.subplots_adjust(hspace=0)
-plt.savefig('%s/test-models-sinewave.png' % (savedir), bbox_inches='tight')
+plt.savefig('%s/data-sinewave.png' % (savedir), bbox_inches='tight')
 plt.close()
 
 # Save
 np.savetxt('%s/data-sinewave.csv' % (savedir),
-        np.array([test_t, simulated_data]).T, delimiter=',', comments='',
+        np.array([times, simulated_data]).T, delimiter=',', comments='',
         header='\"time\",\"current\"')
 
 #
 # AP protocols
 #
 # Load protocol
-test_prt = np.loadtxt('./protocol-time-series/ap.csv', skiprows=1,
+protocol = np.loadtxt('./protocol-time-series/ap.csv', skiprows=1,
         delimiter=',')
-test_t = test_prt[:, 0]
-test_prt = test_prt[:, 1]
+times = protocol[:, 0]
+protocol = protocol[:, 1]
 
 # Update protocol
-modelc.set_fixed_form_voltage_protocol(test_prt, test_t)
+modelc.set_fixed_form_voltage_protocol(protocol, times)
 
 # Simulate and add noise
-simulated_data = modelc.simulate(infoc.base_param, test_t)
+simulated_data = modelc.simulate(infoc.base_param, times)
 simulated_data += np.random.normal(0, iid_noise_sigma,
         size=simulated_data.shape)
 
 # Plot
 plt.figure(figsize=(8, 6))
 plt.subplot(211)
-plt.plot(test_t, modelc.voltage(test_t), c='#7f7f7f')
+plt.plot(times, modelc.voltage(times), c='#7f7f7f')
 plt.ylabel('Voltage (mV)')
 
 plt.subplot(212)
-plt.plot(test_t, simulated_data, label='Model C')
+plt.plot(times, simulated_data, label='Model C')
 plt.legend()
 plt.xlabel('Time (ms)')
 plt.ylabel('Current (pA)')
 
 plt.subplots_adjust(hspace=0)
-plt.savefig('%s/test-models-ap.png' % (savedir), bbox_inches='tight')
+plt.savefig('%s/data-ap.png' % (savedir), bbox_inches='tight')
 plt.close()
 
 # Save
 np.savetxt('%s/data-ap.csv' % (savedir),
-        np.array([test_t, simulated_data]).T, delimiter=',', comments='',
+        np.array([times, simulated_data]).T, delimiter=',', comments='',
         header='\"time\",\"current\"')
 
