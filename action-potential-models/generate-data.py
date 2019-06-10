@@ -29,10 +29,10 @@ model_tnnp = m.Model('./mmt-model-files/tnnp-2004.mmt', stim_seq=stim_seq)
 model_tnnp.set_name('tnnp-2004')
 
 # Simulate and add noise
-simulated_data = model_tnnp.simulate(np.ones(model_tnnp.dimension()), times)
+simulated_data = model_tnnp.simulate(np.ones(model_tnnp.n_parameters()), times)
 for _ in range(10):
     assert(np.all(np.abs(
-                model_tnnp.simulate(np.ones(model_tnnp.dimension()), times)
+                model_tnnp.simulate(np.ones(model_tnnp.n_parameters()), times)
                 - simulated_data) < 1e-6))
 simulated_data += np.random.normal(0, iid_noise_sigma,
         size=simulated_data.shape)
@@ -68,10 +68,10 @@ model_tnnp = m.Model('./mmt-model-files/tnnp-2004.mmt', stim_seq=stim_seq)
 model_tnnp.set_name('tnnp-2004')
 
 # Simulate and add noise
-simulated_data = model_tnnp.simulate(np.ones(model_tnnp.dimension()), times)
+simulated_data = model_tnnp.simulate(np.ones(model_tnnp.n_parameters()), times)
 for _ in range(10):
     assert(np.all(np.abs(
-                model_tnnp.simulate(np.ones(model_tnnp.dimension()), times)
+                model_tnnp.simulate(np.ones(model_tnnp.n_parameters()), times)
                 - simulated_data) < 1e-6))
 simulated_data += np.random.normal(0, iid_noise_sigma,
         size=simulated_data.shape)
@@ -107,10 +107,10 @@ model_tnnp = m.Model('./mmt-model-files/tnnp-2004.mmt', stim_seq=stim_seq)
 model_tnnp.set_name('tnnp-2004')
 
 # Simulate and add noise
-simulated_data = model_tnnp.simulate(np.ones(model_tnnp.dimension()), times)
+simulated_data = model_tnnp.simulate(np.ones(model_tnnp.n_parameters()), times)
 for _ in range(10):
     assert(np.all(np.abs(
-                model_tnnp.simulate(np.ones(model_tnnp.dimension()), times)
+                model_tnnp.simulate(np.ones(model_tnnp.n_parameters()), times)
                 - simulated_data) < 1e-6))
 simulated_data += np.random.normal(0, iid_noise_sigma,
         size=simulated_data.shape)
@@ -146,11 +146,11 @@ model_tnnp.set_name('tnnp-2004')
 
 # Simulate and add noise
 simulated_data = p.hergblock_simulate(model_tnnp,
-        np.ones(model_tnnp.dimension()), times)
+        np.ones(model_tnnp.n_parameters()), times)
 for _ in range(10):
     assert(np.all(np.abs(
                 p.hergblock_simulate(model_tnnp,
-                    np.ones(model_tnnp.dimension()), times)
+                    np.ones(model_tnnp.n_parameters()), times)
                 - simulated_data) < 1e-6))
 simulated_data += np.random.normal(0, iid_noise_sigma,
         size=simulated_data.shape)

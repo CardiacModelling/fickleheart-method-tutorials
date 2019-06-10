@@ -26,19 +26,21 @@ model_ohara.set_name('ohara-2011')
 # Default stimuli
 times = np.linspace(0, 1000, 5000)
 
-sim_tnnp = model_tnnp.simulate(np.ones(model_tnnp.dimension()), times)
-sim_tnnpw = model_tnnpw.simulate(np.ones(model_tnnpw.dimension()), times)
-sim_ohara = model_ohara.simulate(np.ones(model_ohara.dimension()), times)
+sim_tnnp = model_tnnp.simulate(np.ones(model_tnnp.n_parameters()), times)
+sim_tnnpw = model_tnnpw.simulate(np.ones(model_tnnpw.n_parameters()), times)
+sim_ohara = model_ohara.simulate(np.ones(model_ohara.n_parameters()), times)
 
 for _ in range(10):
     assert(np.all(np.abs(
-                model_tnnp.simulate(np.ones(model_tnnp.dimension()), times)
+                model_tnnp.simulate(np.ones(model_tnnp.n_parameters()), times)
                 - sim_tnnp) < 1e-6))
     assert(np.all(np.abs(
-                model_tnnpw.simulate(np.ones(model_tnnpw.dimension()), times)
+                model_tnnpw.simulate(np.ones(model_tnnpw.n_parameters()),
+                    times)
                 - sim_tnnpw) < 1e-6))
     assert(np.all(np.abs(
-                model_ohara.simulate(np.ones(model_ohara.dimension()), times)
+                model_ohara.simulate(np.ones(model_ohara.n_parameters()),
+                    times)
                 - sim_ohara) < 1e-6))
 
 # and have a look at it
@@ -79,19 +81,21 @@ model_ohara = m.Model('./mmt-model-files/ohara-2011.mmt',
         stim_seq=random_stim)
 model_ohara.set_name('ohara-2011')
 
-sim_tnnp = model_tnnp.simulate(np.ones(model_tnnp.dimension()), times)
-sim_tnnpw = model_tnnpw.simulate(np.ones(model_tnnpw.dimension()), times)
-sim_ohara = model_ohara.simulate(np.ones(model_ohara.dimension()), times)
+sim_tnnp = model_tnnp.simulate(np.ones(model_tnnp.n_parameters()), times)
+sim_tnnpw = model_tnnpw.simulate(np.ones(model_tnnpw.n_parameters()), times)
+sim_ohara = model_ohara.simulate(np.ones(model_ohara.n_parameters()), times)
 
 for _ in range(10):
     assert(np.all(np.abs(
-                model_tnnp.simulate(np.ones(model_tnnp.dimension()), times)
+                model_tnnp.simulate(np.ones(model_tnnp.n_parameters()), times)
                 - sim_tnnp) < 1e-6))
     assert(np.all(np.abs(
-                model_tnnpw.simulate(np.ones(model_tnnpw.dimension()), times)
+                model_tnnpw.simulate(np.ones(model_tnnpw.n_parameters()),
+                    times)
                 - sim_tnnpw) < 1e-6))
     assert(np.all(np.abs(
-                model_ohara.simulate(np.ones(model_ohara.dimension()), times)
+                model_ohara.simulate(np.ones(model_ohara.n_parameters()),
+                    times)
                 - sim_ohara) < 1e-6))
 
 # and have a look at it

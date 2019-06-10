@@ -108,6 +108,11 @@ class Model(pints.ForwardModel):
         self.simulation = myokit.Simulation(self._model)
         self.parameters = parameters
 
+        # self.presimulation.set_tolerance(1e-8, 1e-10)
+        # self.presimulation.set_max_step_size(1e-2)  # ms
+        # self.simulation.set_tolerance(1e-8, 1e-10)
+        # self.simulation.set_max_step_size(1e-2)  # ms
+
         # Set stimulus default level
         try:
             stim_amp_var, stim_amp_val = model_stim_amp[self._model_file_name]
@@ -176,7 +181,7 @@ class Model(pints.ForwardModel):
         self.max_evaluation_time = max_evaluation_time
         print('Done')
     
-    def dimension(self):
+    def n_parameters(self):
         return len(self.parameters)
 
     def simulate(self, parameter, times):
@@ -187,7 +192,7 @@ class Model(pints.ForwardModel):
 
         # Update model parameters
         if self.transform is not None:
-            parameters = self.transform(parameters)
+            parameter = self.transform(parameter)
         # Simulate with modified model
         for i, name in enumerate(self._conductance):
             self.presimulation.set_constant(name,
@@ -230,7 +235,7 @@ class Model(pints.ForwardModel):
         parameter = np.array(parameter)
         # Update model parameters
         if self.transform is not None:
-            parameters = self.transform(parameters)
+            parameter = self.transform(parameter)
         model = myokit.load_model(self._model_file)
         # Simulate with modified model
         for i, name in enumerate(self._conductance):
