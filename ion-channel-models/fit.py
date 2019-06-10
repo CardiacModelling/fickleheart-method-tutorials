@@ -47,6 +47,13 @@ print('Fitting to ', data_file_name)
 print('Temperature: ', info.temperature)
 saveas = data_file_name[5:][:-4]
 
+# Protocol
+protocol = np.loadtxt('./protocol-time-series/sinewave-ramp.csv', skiprows=1,
+        delimiter=',')
+protocol_times = protocol[:, 0]
+protocol = protocol[:, 1]
+
+
 # Control fitting seed
 # fit_seed = np.random.randint(0, 2**30)
 fit_seed = 542811797
@@ -79,6 +86,9 @@ LogPrior = {
         'model_B': priors.ModelBLogPrior,
         'model_C': priors.ModelCLogPrior,
         }
+
+# Update protocol
+model.set_fixed_form_voltage_protocol(protocol, protocol_times)
 
 # Create Pints stuffs
 problem = pints.SingleOutputProblem(model, times, data)
