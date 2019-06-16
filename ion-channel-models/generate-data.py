@@ -107,11 +107,6 @@ np.savetxt('%s/data-sinewave.csv' % (savedir),
         header='\"time\",\"current\"')
 
 #
-# Staircase protocol
-#
-# TODO
-
-#
 # APs protocol
 #
 # Load protocol
@@ -146,6 +141,44 @@ plt.close()
 
 # Save
 np.savetxt('%s/data-ap.csv' % (savedir),
+        np.array([times, simulated_data]).T, delimiter=',', comments='',
+        header='\"time\",\"current\"')
+
+#
+# Staircase protocol
+#
+# Load protocol
+protocol = np.loadtxt('./protocol-time-series/staircase.csv', skiprows=1,
+        delimiter=',')
+times = protocol[:, 0]
+protocol = protocol[:, 1]
+
+# Update protocol
+modelc.set_fixed_form_voltage_protocol(protocol, times)
+
+# Simulate and add noise
+simulated_data = modelc.simulate(infoc.base_param, times)
+simulated_data += np.random.normal(0, iid_noise_sigma,
+        size=simulated_data.shape)
+
+# Plot
+plt.figure(figsize=(8, 6))
+plt.subplot(211)
+plt.plot(times, modelc.voltage(times), c='#7f7f7f')
+plt.ylabel('Voltage (mV)')
+
+plt.subplot(212)
+plt.plot(times, simulated_data, label='Model C')
+plt.legend()
+plt.xlabel('Time (ms)')
+plt.ylabel('Current (pA)')
+
+plt.subplots_adjust(hspace=0)
+plt.savefig('%s/data-staircase.png' % (savedir), bbox_inches='tight')
+plt.close()
+
+# Save
+np.savetxt('%s/data-staircase.csv' % (savedir),
         np.array([times, simulated_data]).T, delimiter=',', comments='',
         header='\"time\",\"current\"')
 

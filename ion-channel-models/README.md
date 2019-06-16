@@ -15,7 +15,7 @@ We are interested in selecting the model that 'best describe' the ground truth (
 In this tutorial, we split our protocols into calibration and validation uses.
 
 - Protocol `sinewave`: calibration.
-- Protocol `activation`: validation.
+- Protocol `staircase`: validation.
 - Protocol `ap`: validation.
 
 
