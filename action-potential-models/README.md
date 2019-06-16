@@ -26,6 +26,14 @@ Note that here we do not have validation protocol, as to emphasise the importanc
 ## Run the tutorial
 
 1. Run `generate-data.py` to generate synthetic data with iid Gaussian noise (create `data`).
+2. Run `fit.py` with arguments `[which_model]` and `[which_data]` to calibrate the specified model with the specified (protocol) data from `./data`.
+3. Run `predict.py` with arguments `[which_model]`, `[which_calibration]` and `[which_predict]` to predict the specified (protocol) data (in `./data`) with the specified model and calibrated model parameters (in `./out`).
+
+## TODO
+
+- For 2., can also try history matching type of method? Though doubt will make a difference.
+- Run MCMC, to show we are 'confident' wrongly.
+- Do `current` prediction.
 
 ### Output
 
