@@ -18,9 +18,14 @@ In this tutorial, we split our protocols into calibration and validation uses.
 - Protocol `activation`: validation.
 - Protocol `ap`: validation.
 
+
 ## Run the tutorial
 
 1. Run `generate-data.py` to generate synthetic data with iid Gaussian noise (create `data`).
+2. Run `fit.py` with arguments `[which_model]` to calibrate the specified model.
+
+### TODO
+- Do predictions.
 
 ### Output
 
@@ -37,4 +42,3 @@ In this tutorial, we split our protocols into calibration and validation uses.
 ### Tests
 
 - `test-models.py`: Simple test for default model setting and forward model simulations.
-
