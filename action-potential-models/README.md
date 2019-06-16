@@ -23,15 +23,16 @@ Note that here we do not have validation protocol, as to emphasise the importanc
 - Protocol `hergblock`: COU prediction.
 - Protocol `current`: COU prediction.
 
+
 ## Run the tutorial
 
 1. Run `generate-data.py` to generate synthetic data with iid Gaussian noise (create `data`).
 2. Run `fit.py` with arguments `[which_model]` and `[which_data]` to calibrate the specified model with the specified (protocol) data from `./data`. Alternatively run `fit-all.sh`.
 3. Run `predict.py` with arguments `[which_model]`, `[which_calibration]` and `[which_predict]` to predict the specified (protocol) data (in `./data`) with the specified model and calibrated model parameters (in `./out`). Alternatively run `predict-all.sh`.
 
-## TODO
+### TODO
 
-- For 2., can also try history matching type of method? Though doubt will make a difference.
+- For #2 above, can also try history matching type of method? Though doubt will make a difference.
 - Run MCMC, to show we are 'confident' wrongly.
 - Do `current` prediction.
 
@@ -49,4 +50,3 @@ Note that here we do not have validation protocol, as to emphasise the importanc
 ### Tests
 
 - `test-models.py`: Simple test for default model setting and forward model simulations.
-
