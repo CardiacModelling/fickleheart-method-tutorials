@@ -48,7 +48,7 @@ print('Temperature: ', info.temperature)
 saveas = data_file_name[5:][:-4]
 
 # Protocol
-protocol = np.loadtxt('./protocol-time-series/sinewave-ramp.csv', skiprows=1,
+protocol = np.loadtxt('./protocol-time-series/sinewave.csv', skiprows=1,
         delimiter=',')
 protocol_times = protocol[:, 0]
 protocol = protocol[:, 1]

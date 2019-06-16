@@ -72,7 +72,7 @@ np.savetxt('%s/data-activation.csv' % (savedir),
 # Sine wave protocol
 #
 # Load protocol
-protocol = np.loadtxt('./protocol-time-series/sinewave-ramp.csv', skiprows=1,
+protocol = np.loadtxt('./protocol-time-series/sinewave.csv', skiprows=1,
         delimiter=',')
 times = protocol[:, 0]
 protocol = protocol[:, 1]
@@ -107,7 +107,12 @@ np.savetxt('%s/data-sinewave.csv' % (savedir),
         header='\"time\",\"current\"')
 
 #
-# AP protocols
+# Staircase protocol
+#
+# TODO
+
+#
+# APs protocol
 #
 # Load protocol
 protocol = np.loadtxt('./protocol-time-series/ap.csv', skiprows=1,
