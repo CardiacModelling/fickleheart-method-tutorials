@@ -47,7 +47,7 @@ data_dir = './data'
 savedir = './fig/' + which_model
 if not os.path.isdir(savedir):
     os.makedirs(savedir)
-saveas = which_cal + '-' + which_predict
+saveas = which_model + '-' + which_cal + '-' + which_predict
 
 data_file_name = 'data-%s.csv' % which_predict
 print('Predicting ', data_file_name)
