@@ -18,16 +18,16 @@ In this tutorial, we split our protocols into calibration and COU.
 Note that here we do not have validation protocol, as to emphasise the importance of validation.
 
 - Protocol `stim1hz`: calibration.
-- Protocol `stim2hz`: calibration.
 - Protocol `randstim`: calibration.
+- Protocol `stim2hz`: COU prediction.
 - Protocol `hergblock`: COU prediction.
 - Protocol `current`: COU prediction.
 
 ## Run the tutorial
 
 1. Run `generate-data.py` to generate synthetic data with iid Gaussian noise (create `data`).
-2. Run `fit.py` with arguments `[which_model]` and `[which_data]` to calibrate the specified model with the specified (protocol) data from `./data`.
-3. Run `predict.py` with arguments `[which_model]`, `[which_calibration]` and `[which_predict]` to predict the specified (protocol) data (in `./data`) with the specified model and calibrated model parameters (in `./out`).
+2. Run `fit.py` with arguments `[which_model]` and `[which_data]` to calibrate the specified model with the specified (protocol) data from `./data`. Alternatively run `fit-all.sh`.
+3. Run `predict.py` with arguments `[which_model]`, `[which_calibration]` and `[which_predict]` to predict the specified (protocol) data (in `./data`) with the specified model and calibrated model parameters (in `./out`). Alternatively run `predict-all.sh`.
 
 ## TODO
 
