@@ -80,7 +80,7 @@ plt.close()
 # Sine wave protocol
 #
 # Load protocol
-test_prt = np.loadtxt('./protocol-time-series/sinewave-ramp.csv', skiprows=1,
+test_prt = np.loadtxt('./protocol-time-series/sinewave.csv', skiprows=1,
         delimiter=',')
 test_t = test_prt[:, 0]
 test_prt = test_prt[:, 1]

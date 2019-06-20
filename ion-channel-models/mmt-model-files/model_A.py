@@ -55,5 +55,5 @@ sys.path.append('../method')  # where priors module is
 from priors import ModelALogPrior as LogPrior
 
 # Temperature of the experiment
-temperature = 24.0  # oC
+temperature = 37.0  # oC
 
