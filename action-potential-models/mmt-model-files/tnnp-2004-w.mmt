@@ -4,7 +4,6 @@ author: Chon Lok Lei
 desc: """
     A mixed current model using the tnnp-2004.mmt as the base.
     Swapped current:
-    - ina: fink-2008.mmt
     - ito: fink-2008.mmt
     - ikr: model-C.mmt
     - iks: ohara-2011.mmt
@@ -17,9 +16,9 @@ rapid_time_dependent_potassium_current.C2           = 0
 rapid_time_dependent_potassium_current.C3           = 1
 slow_time_dependent_potassium_current.x1            = 0
 slow_time_dependent_potassium_current.x2            = 0
-fast_sodium_current.m                               = 0
-fast_sodium_current.h                               = 0.75
-fast_sodium_current.j                               = 0.75
+fast_sodium_current_m_gate.m                        = 0
+fast_sodium_current_h_gate.h                        = 0.75
+fast_sodium_current_j_gate.j                        = 0.75
 L_type_Ca_current_d_gate.d                          = 0
 L_type_Ca_current_f_gate.f                          = 1
 L_type_Ca_current_fCa_gate.fCa                      = 1
@@ -143,27 +142,46 @@ time = 0 bind time
 pace = 0 bind pace
 
 [fast_sodium_current]
-# adapted from fink-2008.mmt
-use membrane.V
-g_Na = 14.838 [mS/uF]
-i_Na = g_Na * m ^ 3 * h * j * (V - reversal_potentials.E_Na)
+g_Na = 14.838
+    in [mS/uF]
+i_Na = g_Na * fast_sodium_current_m_gate.m ^ 3 * fast_sodium_current_h_gate.h * fast_sodium_current_j_gate.j * (membrane.V - reversal_potentials.E_Na)
     in [A/F]
-shift = 0 [mV]
-dot(m) = (m_inf - m) / tau_m
-    alpha_m = 1 / (1 + exp((-60 - V) / 5))
-    beta_m = 0.1 / (1 + exp((V + 35) / 5)) + 0.1 / (1 + exp((V - 50) / 200))
-    m_inf = 1 / (1 + exp((-56.86 - V) / 9.03)) ^ 2
-    tau_m = 1 * alpha_m * beta_m
+
+[fast_sodium_current_h_gate]
+alpha_h = piecewise(membrane.V < -40 [mV], 0.057 [mS/uF] * exp(-(membrane.V + 80 [mV]) / 6.8 [mV]), 0 [mS/uF])
+    in [mS/uF]
+beta_h = piecewise(membrane.V < -40 [mV], 2.7 [mS/uF] * exp(0.079 [1/mV] * membrane.V) + 310000 [mS/uF] * exp(0.3485 [1/mV] * membrane.V), 0.77 [mS/uF] / (0.13 * (1 + exp((membrane.V + 10.66 [mV]) / -11.1 [mV]))))
+    in [mS/uF]
 dot(h) = (h_inf - h) / tau_h
-    alpha_h = if(V < -40 + shift, 0.057 * exp(-(V + 80 - shift) / 6.8), 0)
-    beta_h = if(V < -40 + shift, 2.7 * exp(0.079 * (V - shift)) + 310000 * exp(0.3485 * (V - shift)), 0.77 / (0.13 * (1 + exp((V + 10.66 - shift) / -11.1))))
-    h_inf = 1 / (1 + exp((V + 71.55 - shift) / 7.43)) ^ 2
-    tau_h = 1 / (alpha_h + beta_h)
+    in [1]
+h_inf = 1 / (1 + exp((membrane.V + 71.55 [mV]) / 7.43 [mV])) ^ 2
+    in [1]
+tau_h = 1 / (alpha_h + beta_h)
+    in [ms]
+
+[fast_sodium_current_j_gate]
+alpha_j = piecewise(membrane.V < -40 [mV], (-25428 [mS/uF] * exp(0.2444 [1/mV] * membrane.V) - 6.948e-6 [mS/uF] * exp(-0.04391 [1/mV] * membrane.V)) * (membrane.V + 37.78 [mV]) / 1 [mV] / (1 + exp(0.311 [1/mV] * (membrane.V + 79.23 [mV]))), 0 [mS/uF])
+    in [mS/uF]
+beta_j = piecewise(membrane.V < -40 [mV], 0.02424 [mS/uF] * exp(-0.01052 [1/mV] * membrane.V) / (1 + exp(-0.1378 [1/mV] * (membrane.V + 40.14 [mV]))), 0.6 [mS/uF] * exp(0.057 [1/mV] * membrane.V) / (1 + exp(-0.1 [1/mV] * (membrane.V + 32 [mV]))))
+    in [mS/uF]
 dot(j) = (j_inf - j) / tau_j
-    alpha_j = if(V < -40 + shift, (-25428 * exp(0.2444 * (V - shift)) - 6.948e-06 * exp(-0.04391 * (V - shift))) * (V + 37.78) / 1 / (1 + exp(0.311 * (V + 79.23 - shift))), 0)
-    beta_j = if(V < -40 + shift, 0.02424 * exp(-0.01052 * (V - shift)) / (1 + exp(-0.1378 * (V + 40.14 - shift))), 0.6 * exp(0.057 * (V - shift)) / (1 + exp(-0.1 * (V + 32 - shift))))
-    j_inf = 1 / (1 + exp((V + 71.55 - shift) / 7.43)) ^ 2
-    tau_j = 1 / (alpha_j + beta_j)
+    in [1]
+j_inf = 1 / (1 + exp((membrane.V + 71.55 [mV]) / 7.43 [mV])) ^ 2
+    in [1]
+tau_j = 1 / (alpha_j + beta_j)
+    in [ms]
+
+[fast_sodium_current_m_gate]
+alpha_m = 1 / (1 + exp((-60 [mV] - membrane.V) / 5 [mV]))
+    in [1]
+beta_m = 0.1 / (1 + exp((membrane.V + 35 [mV]) / 5 [mV])) + 0.1 / (1 + exp((membrane.V - 50 [mV]) / 200 [mV]))
+    in [1]
+dot(m) = (m_inf - m) / tau_m
+    in [1]
+m_inf = 1 / (1 + exp((-56.86 [mV] - membrane.V) / 9.03 [mV])) ^ 2
+    in [1]
+tau_m = 1 [ms] * alpha_m * beta_m
+    in [ms]
 
 [inward_rectifier_potassium_current]
 alpha_K1 = 0.1 / (1 + exp(0.06 [1/mV] * (membrane.V - reversal_potentials.E_K - 200 [mV])))
