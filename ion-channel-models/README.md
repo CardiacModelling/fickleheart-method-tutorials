@@ -22,7 +22,7 @@ In this tutorial, we split our protocols into calibration and validation uses.
 ## Run the tutorial
 
 1. Run `generate-data.py` to generate synthetic data with iid Gaussian noise (create `data`).
-2. Run `fit.py` with arguments `[which_model]` to calibrate the specified model.
+2. Run `fit.py` with arguments `[which_model]` to calibrate the specified model. Alternatively run `fit-all.sh`.
 3. Run `predict.py` with arguments `[which_model]` and `[which_predict]` to predict the specified (protocol) data (in `./data`) with the specified model and calibrated model parameters (in `./out`). Alternatively run `predict-all.sh`.
 
 ### TODO
