@@ -7,6 +7,7 @@ desc: """
     - ito: fink-2008.mmt
     - ikr: fink-2008.mmt (ion channel tutorial model-C.mmt)
     - iks: ohara-2011.mmt
+    - ik1: ohara-2011.mmt
     """
 # Initial values
 membrane.V                                          = -86.2
@@ -17,6 +18,7 @@ rapid_time_dependent_potassium_current.Cr2          = 0
 rapid_time_dependent_potassium_current.Cr3          = 1
 slow_time_dependent_potassium_current.x1            = 0
 slow_time_dependent_potassium_current.x2            = 0
+inward_rectifier_potassium_current.x                = 1
 fast_sodium_current_m_gate.m                        = 0
 fast_sodium_current_h_gate.h                        = 0.75
 fast_sodium_current_j_gate.j                        = 0.75
@@ -185,16 +187,20 @@ tau_m = 1 [ms] * alpha_m * beta_m
     in [ms]
 
 [inward_rectifier_potassium_current]
-alpha_K1 = 0.1 / (1 + exp(0.06 [1/mV] * (membrane.V - reversal_potentials.E_K - 200 [mV])))
+# adapted from ohara-2011.mmt
+use membrane.V
+sx = 1 / (1 + exp(-(V + 2.5538 * potassium_dynamics.K_o + 144.59) / (1.5692 * potassium_dynamics.K_o + 3.8115)))
     in [1]
-beta_K1 = (3 * exp(0.0002 [1/mV] * (membrane.V - reversal_potentials.E_K + 100 [mV])) + exp(0.1 [1/mV] * (membrane.V - reversal_potentials.E_K - 10 [mV]))) / (1 + exp(-0.5 [1/mV] * (membrane.V - reversal_potentials.E_K)))
+tx = 122.2 / (exp((V + 127.2) / -20.36) + exp((V + 236.8) / 69.33))
+    in [ms]
+dot(x) = (sx - x) / tx
     in [1]
-g_K1 = 5.405
+r = 1 / (1 + exp((V + 105.8 - 2.6 * potassium_dynamics.K_o) / 9.493))
+    in [1]
+g_K1 = 0.5
     in [mS/uF]
-i_K1 = g_K1 * xK1_inf * sqrt(potassium_dynamics.K_o / 5.4 [mM]) * (membrane.V - reversal_potentials.E_K)
+i_K1 = g_K1 * sqrt(potassium_dynamics.K_o) * r * x * (V - reversal_potentials.E_K)
     in [A/F]
-xK1_inf = alpha_K1 / (alpha_K1 + beta_K1)
-    in [1]
 
 [membrane]
 Cm = 0.185
