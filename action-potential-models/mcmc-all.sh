@@ -11,7 +11,9 @@ mkdir -p log
 
 # Run tnnp-2004-w models
 nohup python mcmc.py tnnp-2004-w stim1hz >> log/mcmc-tnnpw-stim1hz.log 2>&1 &
+nohup python mcmc.py tnnp-2004-w randstim >> log/mcmc-tnnpw-randstim.log 2>&1 &
 
 # Run fink-2008 models
 nohup python mcmc.py fink-2008 stim1hz >> log/mcmc-fink-stim1hz.log 2>&1 &
+nohup python mcmc.py fink-2008 randstim >> log/mcmc-fink-randstim.log 2>&1 &
 
