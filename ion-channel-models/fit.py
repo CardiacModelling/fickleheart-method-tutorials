@@ -84,7 +84,6 @@ model = m.Model(info.model_file,
 LogPrior = {
         'model_A': priors.ModelALogPrior,
         'model_B': priors.ModelBLogPrior,
-        'model_C': priors.ModelCLogPrior,
         }
 
 # Update protocol
