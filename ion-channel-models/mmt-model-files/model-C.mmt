@@ -2,14 +2,17 @@
 author: Chon Lok Lei
 name: model_C
 desc: """
-Myokit version of model C: Fink et al. 2008 model.
+Myokit version of model C: Mazhari et al. 2001 model.
+
+Note that this is a hERG model based on Mazhari et al. 2001 room temperature
+voltage clamp measurements with a Q10 adjustment using Q10 values reported by
+Zhou et al. 1998 to create a 37C model.
 """
 # Initial values
-ikr.Cr1       = 1
-ikr.Cr2       = 0
-ikr.Cr3       = 0
-ikr.Or4       = 0
-ikr.Ir5       = 0
+ikr.C3 = 1
+ikr.C2 = 0
+ikr.C1 = 0
+ikr.O = 0
 
 #
 # Simulation engine variables
@@ -31,24 +34,43 @@ V = engine.pace
 #
 [ikr]
 use membrane.V
+IKr = g * O * (V - rev.EK)
+I = 1 - (O + C1 + C2 + C3)
+a1 = p1 * exp( p2 * V)
+b1 = p3 * exp(-p4 * V)
+a2 = p7 * exp( p8 * V)
+b2 = p9 * exp(-p10 * V)
+a3 = p5
+b3 = p6
+a4 = p11 * exp( p12 * V)
+b4 = p13 * exp(-p14 * V)
+a5 = p15 * exp( p16 * V)
+b5 = (b1 * b2  * a5) / (a1 * a2)  # microscopic reversibility condition
+
+dot(C1) = b1 * O + a3 * C2 + b5 * I - (a1 + b3 + a5) * C1
+dot(C2) = b3 * C1 + a4 * C3 - (a3 + b4) * C2
+dot(C3) = b4 * C2 - a4 * C3
+dot(O) = b2 * I + a1 * C1 - (a2 + b1) * O
+
+p1 = 0.0218 [1/ms]
+p2 = 0.0262 [1/mV]
+p3 = 0.0009 [1/ms]
+p4 = 0.0269 [1/mV]
+p5 = 0.0266 [1/ms]
+p6 = 0.1348 [1/ms]
+p7 = 0.0622 [1/ms]
+p8 = 0.0120 [1/mV]
+p9 = 0.0059 [1/ms]
+p10 = 0.0443 [1/mV]
+p11 = 0.0069 [1/ms]
+p12 = 0.0272 [1/mV]
+p13 = 0.0227 [1/ms]
+p14 = 0.0431 [1/mV]
+p15 = 0.0000129 [1/ms]
+p16 = 0.00000271 [1/mV]
 g = 0.1524 * 1e3 [pA/mV]
-IKr = g * (phys.T / 35 - 55 / 7) * sqrt(potassium.Ko / 5.4) * Or4 * (V - rev.EK)
-    in [A/F]
-# Markov model
-T_Base = 310 [K]
-alpha_xr1 = 1 * phys.T / T_Base * exp(24.335 + T_Base / phys.T * (0.0112 * V - 25.914))
-alpha_xr2 = 1 * phys.T / T_Base * exp(22.746 + T_Base / phys.T * (0 * V - 25.914))
-alpha_xr3 = 1 * phys.T / T_Base * exp(22.098 + T_Base / phys.T * (0.0365 * V - 25.914))
-alpha_xr4 = 1 * phys.T / T_Base * exp(30.016 + T_Base / phys.T * (0.0223 * V - 30.888)) * (5.4 / potassium.Ko) ^ 0.4
-beta_xr1 = 1 * phys.T / T_Base * exp(13.688 + T_Base / phys.T * (-0.0603 * V - 15.707))
-beta_xr2 = 1 * phys.T / T_Base * exp(13.193 + T_Base / phys.T * (0 * V - 15.707))
-beta_xr3 = 1 * phys.T / T_Base * exp(7.313 + T_Base / phys.T * (-0.0399 * V - 15.707))
-beta_xr4 = 1 * phys.T / T_Base * exp(30.061 + T_Base / phys.T * (-0.0312 * V - 33.243))
-dot(Cr1) = beta_xr1 * Cr2 - alpha_xr1 * Cr1
-dot(Cr2) = alpha_xr1 * Cr1 + beta_xr2 * Cr3 - (alpha_xr2 + beta_xr1) * Cr2
-dot(Cr3) = alpha_xr2 * Cr2 + beta_xr3 * Or4 - (alpha_xr3 + beta_xr2) * Cr3
-dot(Ir5) = alpha_xr4 * Or4 - beta_xr4 * Ir5
-dot(Or4) = alpha_xr3 * Cr3 + beta_xr4 * Ir5 - (alpha_xr4 + beta_xr3) * Or4
+
+n_params = 17
 
 
 #
