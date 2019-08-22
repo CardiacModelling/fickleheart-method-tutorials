@@ -2,17 +2,17 @@
 author: Chon Lok Lei
 name: model_C
 desc: """
-Myokit version of model C: Mazhari et al. 2001 model.
+Myokit version of model C: DiVeroli et al. 2011 model.
 
-Note that this is a hERG model based on Mazhari et al. 2001 room temperature
-voltage clamp measurements with a Q10 adjustment using Q10 values reported by
-Zhou et al. 1998 to create a 37C model.
+Note that this is a hERG structure model based on DiVeroli et al. 2011, but
+parameter using the best fit to Beattie et al. 2018 cell #5 data.
 """
 # Initial values
-ikr.C3 = 1
-ikr.C2 = 0
+ikr.C2 = 1
 ikr.C1 = 0
 ikr.O = 0
+ikr.I = 0
+ikr.IC1 = 0
 
 #
 # Simulation engine variables
@@ -35,42 +35,55 @@ V = engine.pace
 [ikr]
 use membrane.V
 IKr = g * O * (V - rev.EK)
-I = 1 - (O + C1 + C2 + C3)
+IC2 = 1 - (C1 + C2 + O + I + IC1)
 a1 = p1 * exp( p2 * V)
 b1 = p3 * exp(-p4 * V)
-a2 = p7 * exp( p8 * V)
-b2 = p9 * exp(-p10 * V)
-a3 = p5
-b3 = p6
-a4 = p11 * exp( p12 * V)
-b4 = p13 * exp(-p14 * V)
+a2 = p5 * exp( p6 * V)
+b2 = p7 * exp(-p8 * V)
+a3 = p9 * exp( p10 * V)
+b3 = p11 * exp(-p12* V)
+a4 = p13 * exp(p14*V)
+b4 = (a7 * b3 * b2 * a4) / (a2 * a3 * b7)
 a5 = p15 * exp( p16 * V)
-b5 = (b1 * b2  * a5) / (a1 * a2)  # microscopic reversibility condition
+b5 = (a5 * a6 * b4 * b1) / (a1 * a4 * b6)
+a6 = p17 * exp( p18 * V)
+b6 = p19 * exp(-p20 * V)
+a7 = p21 * exp( p22 * V)
+b7 = p23 * exp(-p24 * V)
 
-dot(C1) = b1 * O + a3 * C2 + b5 * I - (a1 + b3 + a5) * C1
-dot(C2) = b3 * C1 + a4 * C3 - (a3 + b4) * C2
-dot(C3) = b4 * C2 - a4 * C3
-dot(O) = b2 * I + a1 * C1 - (a2 + b1) * O
+dot(C2) = b5*IC2 + b1*C1 - C2*(a1 + a5)
+dot(C1) = b4*IC1 + b2*O + a1*C2 - C1*(a4 + b1 + a2)
+dot(O) = b3*I + a2*C1 - O*(a3+b2)
+dot(I) = a3*O + a7* IC1 - I*(b3 + b7)
+dot(IC1) = b7*I + a6*IC2 + a4*C1 - IC1*(a7 + b4 + b6)
 
-p1 = 0.0218 [1/ms]
-p2 = 0.0262 [1/mV]
-p3 = 0.0009 [1/ms]
-p4 = 0.0269 [1/mV]
-p5 = 0.0266 [1/ms]
-p6 = 0.1348 [1/ms]
-p7 = 0.0622 [1/ms]
-p8 = 0.0120 [1/mV]
-p9 = 0.0059 [1/ms]
-p10 = 0.0443 [1/mV]
-p11 = 0.0069 [1/ms]
-p12 = 0.0272 [1/mV]
-p13 = 0.0227 [1/ms]
-p14 = 0.0431 [1/mV]
-p15 = 0.0000129 [1/ms]
-p16 = 0.00000271 [1/mV]
-g = 0.1524 * 1e3 [pA/mV]
+p1 = 9.10842103780510584e-04 [1/ms]
+p2 = 6.25402052651053975e-02 [1/mV]
+p3 = 4.39042419443348101e-03 [1/ms]
+p4 = 3.35429604426985258e-07 [1/mV]
+p5 = 2.87405670115248009e-03 [1/ms]
+p6 = 1.00305368007931069e-07 [1/mV]
+p7 = 1.75564776523584650e-06 [1/ms]
+p8 = 8.05116008895071789e-02 [1/mV]
+p9 = 8.27152400271037175e-02 [1/ms]
+p10 = 8.91803230749405040e-03 [1/mV]
+p11 = 3.57285549297768450e-03 [1/ms]
+p12 = 3.16740838124158069e-02 [1/mV]
+p13 = 2.68512620363142651e-05 [1/ms]
+p14 = 1.37578892826654337e-01 [1/mV]
+p15 = 6.82534237343055978e-03 [1/ms]
+p16 = 3.13636923573900718e-07 [1/mV]
+p17 = 8.30724850995241963e-04 [1/ms]
+p18 = 2.98931616929451818e-02 [1/mV]
+p19 = 1.44768725335835672e-04 [1/ms]
+p20 = 9.86622256629679367e-02 [1/mV]
+p21 = 3.18367426284774406e-03 [1/ms]
+p22 = 7.71787812549797475e-02 [1/mV]
+p23 = 9.04392372220308839e-05 [1/ms]
+p24 = 5.31712725351217719e-02 [1/mV]
+g = 2.03772250579866948e-01 * 1e3 [pA/mV]
 
-n_params = 17
+n_params = 25
 
 
 #
@@ -94,6 +107,6 @@ EK = RTF * log(potassium.Ko / potassium.Ki)
 #
 [phys]
 R = 8.314472 [J/mol/K]
-T = 310 [K]  # 36-37oC (BT)
+T = 295 [K]  # 22oC (RT)
 F = 9.64853415e4 [C/mol]
 RTF = R * T / F * 1e3 in [mV]

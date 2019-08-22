@@ -29,5 +29,5 @@ ions_conc = {
 # Prior
 
 # Temperature of the experiment
-temperature = 37.0  # oC
+temperature = 22.0  # oC
 

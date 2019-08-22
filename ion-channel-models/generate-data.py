@@ -14,7 +14,7 @@ savedir = './data'
 if not os.path.isdir(savedir):
     os.makedirs(savedir)
 
-iid_noise_sigma = 50  # pA
+iid_noise_sigma = 25  # pA
 
 np.random.seed(101)
 
