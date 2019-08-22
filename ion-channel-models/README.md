@@ -6,7 +6,7 @@ The ion channel that is used throughout this tutorial is the ion channel which c
 
 We are interested in selecting the model that 'best describe' the ground truth (model) from our two candidate models.
 
-- Model A (candidate model): Beattie et al. 2018 model (parameters from cell \#5).
+- Model A (candidate model): Beattie et al. 2018 model.
 - Model B (candidate model): Oehmen et al. 2002 model.
 - Model C (ground truth model): Mazhari et al. 2001 model (temperature at 310K).
 
