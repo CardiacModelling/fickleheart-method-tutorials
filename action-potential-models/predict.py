@@ -94,12 +94,12 @@ else:
 
 # Plot
 fig, axes = plt.subplots(1, 1, sharex=True, figsize=(8, 4))
-is_predict = 'Prediction' if which_cal == which_predict else 'Model'
+is_predict = 'Prediction' if which_cal != which_predict else 'Fitted model'
 for i, (d, p) in enumerate(zip(data, prediction)):
     axes.plot(times, d, c='C' + str(i), alpha=0.5, label='Data' + legend[i])
     axes.plot(times, p, c='C' + str(i), ls='--',
             label=is_predict + legend[i])
-axes.legend()
+axes.legend(loc=1)
 axes.set_ylabel('Voltage (mV)')
 axes.set_xlabel('Time (ms)')
 plt.subplots_adjust(hspace=0)
