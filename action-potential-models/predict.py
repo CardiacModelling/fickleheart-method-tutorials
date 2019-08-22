@@ -82,18 +82,24 @@ cal_param = np.loadtxt(param_file)
 # Predict
 if which_predict == 'hergblock':
     prediction = protocol.hergblock_simulate(model,
-            cal_param, times)
-    data = data.T
+            cal_param, times)[[0, 3]]
+    data = data.T[[0, 3]]
+    legend = [' 0% block', ' 25% block', ' 50% block', ' 75% block',
+            ' 100% block']
+    legend = [legend[0], legend[3]]
 else:
     prediction = [model.simulate(cal_param, times)]
     data = [data]
+    legend = ['']
 
 # Plot
 fig, axes = plt.subplots(1, 1, sharex=True, figsize=(8, 4))
+is_predict = 'Prediction' if which_cal == which_predict else 'Model'
 for i, (d, p) in enumerate(zip(data, prediction)):
-    axes.plot(times, d, c='C' + str(i), alpha=0.5, label='data')
-    axes.plot(times, p, c='C' + str(i), ls='--', label='prediction')
-# axes.legend()
+    axes.plot(times, d, c='C' + str(i), alpha=0.5, label='Data' + legend[i])
+    axes.plot(times, p, c='C' + str(i), ls='--',
+            label=is_predict + legend[i])
+axes.legend()
 axes.set_ylabel('Voltage (mV)')
 axes.set_xlabel('Time (ms)')
 plt.subplots_adjust(hspace=0)
