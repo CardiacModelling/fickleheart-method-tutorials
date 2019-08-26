@@ -88,16 +88,17 @@ for p in cal_params:
     predictions.append(model.simulate(p, times))
 
 # Plot
-fig, axes = plt.subplots(2, 1, sharex=True, figsize=(8, 6))
+fig, axes = plt.subplots(2, 1, sharex=True, figsize=(8, 4),
+        gridspec_kw={'height_ratios': [1, 3]})
 sim_protocol = model.voltage(times)
 axes[0].plot(times, sim_protocol, c='#7f7f7f')
-axes[0].set_ylabel('Voltage (mV)')
+axes[0].set_ylabel('Voltage\n(mV)', fontsize=16)
 axes[1].plot(times, data, alpha=0.5, label='Data')
 for i, p in zip(fix_idx, predictions):
     axes[1].plot(times, p, label='Prediction %s' % i)
 axes[1].legend()
-axes[1].set_ylabel('Current (pA)')
-axes[1].set_xlabel('Time (ms)')
+axes[1].set_ylabel('Current (pA)', fontsize=16)
+axes[1].set_xlabel('Time (ms)', fontsize=16)
 
 plt.subplots_adjust(hspace=0)
 plt.savefig('%s/%s' % (savedir, saveas), bbox_inches='tight', dpi=200)

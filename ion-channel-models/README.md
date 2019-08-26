@@ -8,7 +8,7 @@ We are interested in selecting the model that 'best describe' the ground truth (
 
 - Model A (candidate model): Beattie et al. 2018 model.
 - Model B (candidate model): Oehmen et al. 2002 model.
-- Model C (ground truth model): Mazhari et al. 2001 model (temperature at 310K).
+- Model C (ground truth model): Di Veroli et al. 2013 model (temperature at 295K; parameters from fitting to Beattie et al. 2018 cell \#5).
 
 ### Use of protocol
 
