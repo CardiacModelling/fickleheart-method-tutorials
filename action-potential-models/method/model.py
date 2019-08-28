@@ -74,6 +74,16 @@ parameters = [
         'ina.s', 'ical.s', 'ikr.s', 'iks.s', 'ito.s', 'inaca.s', 'ik1.s',
         'inak.s', #'if.s',
         ]
+parameter_names = [
+        r'$s_{Na}$',
+        r'$s_{CaL}$',
+        r'$s_{Kr}$',
+        r'$s_{Ks}$',
+        r'$s_{to}$',
+        r'$s_{NaCa}$',
+        r'$s_{K1}$',
+        r'$s_{NaK}$'
+        ]
 
 
 #
