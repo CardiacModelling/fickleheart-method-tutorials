@@ -109,6 +109,30 @@ for i, p in zip(fix_idx, predictions_a):
     axes[1].plot(times, p, label='Model A' + is_predict)
 for i, p in zip(fix_idx, predictions_b):
     axes[1].plot(times, p, label='Model B' + is_predict)
+
+# Zooms
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes, mark_inset
+sys.path.append('./protocol-time-series')
+zoom = importlib.import_module(which_predict + '_to_zoom')
+axes[1].set_ylim(zoom.set_ylim)
+for i_zoom, (w, h, loc) in enumerate(zoom.inset_setup):
+    axins = inset_axes(axes[1], width=w, height=h, loc=loc,
+            axes_kwargs={"facecolor" : "#f0f0f0"})
+    axins.plot(times, data, alpha=0.5)
+    for i, p in zip(fix_idx, predictions_a):
+        axins.plot(times, p)
+    for i, p in zip(fix_idx, predictions_b):
+        axins.plot(times, p)
+    axins.set_xlim(zoom.set_xlim_ins[i_zoom])
+    axins.set_ylim(zoom.set_ylim_ins[i_zoom])
+    #axins.yaxis.get_major_locator().set_params(nbins=3)
+    #axins.xaxis.get_major_locator().set_params(nbins=3)
+    axins.set_xticklabels([])
+    axins.set_yticklabels([])
+    pp, p1, p2 = mark_inset(axes[1], axins, loc1=zoom.mark_setup[i_zoom][0],
+            loc2=zoom.mark_setup[i_zoom][1], fc="none", lw=0.75, ec='k')
+    pp.set_fill(True); pp.set_facecolor("#f0f0f0")
+
 axes[1].legend()
 axes[1].set_ylabel('Current (pA)', fontsize=16)
 axes[1].set_xlabel('Time (ms)', fontsize=16)
