@@ -5,7 +5,7 @@ This repo contains the code for reproducing the results in the tutorials in the 
 ### Requirements
 
 The code requires Python (2.7 or 3.6+) and two dependencies:
-[PINTS](https://github.com/pints-team/pints) and [Myokit](http://myokit.org).
+[PINTS](https://github.com/pints-team/pints#installing-pints) and [Myokit](http://myokit.org/install/).
 [Matplotlib](https://pypi.org/project/matplotlib/) is required to regenerate the figures.
 
 
