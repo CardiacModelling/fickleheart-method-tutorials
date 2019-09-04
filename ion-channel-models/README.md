@@ -18,6 +18,10 @@ In this tutorial, we split our protocols into calibration and validation uses.
 - Protocol `staircase`: validation.
 - Protocol `ap`: validation.
 
+### Arguments
+
+- `[which_model]` can be one of `A`, `B`
+- `[which_predict]` can be one of `sinewave`, `staircase`, `AP`
 
 ## Run the tutorial
 
