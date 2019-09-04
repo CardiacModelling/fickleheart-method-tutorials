@@ -1,8 +1,8 @@
 # Action potential model tutorial
 
-A typical fitting of cardiac action potential model is by scaling/updating the maximum conductance parameters of an existing action potential model.
-This method usually assumes that the underlying kinetics of each ion channel current within the candidate model is correct and perfect (i.e. match perfectly to the ground truth).
-Here we explicitly impose that the underlying kinetics of each ion channel current is _imperfect_.
+A typical method of fitting cardiac action potential models is by scaling/updating the maximum conductance parameters of an existing action potential model.
+This method usually assumes that the underlying kinetics of each ion channel current within the candidate model are correct and perfect (i.e. they match perfectly to the ground truth).
+Here, we explicitly impose that the underlying kinetics of each ion channel current are _imperfect_.
 Then we will _ignore_ the discrepancy and proceed with our analysis with the incorrect assumption (i.e. without acknowledging model discrepancy).
 Finally, we compare the prediction of those calibrated candidate models under our context of use (COU) to the ground truth (model).
 
@@ -23,6 +23,11 @@ Note that here we do not have validation protocol, as to emphasise the importanc
 - Protocol `hergblock`: COU prediction.
 - Protocol `current`: COU prediction.
 
+### Arguments
+
+- `[which_model]` can be one of `tnnp-2004-w`, `fink-2008`
+- `[which_data]` and `[which_calibration]` can be one of `stim1hz`, `randstim`
+- `[which_predict]` can be one of `stim1hz`, `randstim`, `stim2hz`, `hergblock`, `current`
 
 ## Run the tutorial
 
@@ -32,7 +37,7 @@ Note that here we do not have validation protocol, as to emphasise the importanc
 
 ### TODO
 
-- For #2 above, can also try history matching type of method? Though doubt will make a difference.
+- For #2 above, can also try history matching type of method? Though doubt this will make a difference.
 - Run MCMC, to show we are 'confident' wrongly.
 - Do `current` prediction.
 
