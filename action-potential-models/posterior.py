@@ -18,7 +18,7 @@ import protocol
 Run posterior prediction.
 """
 
-model_list = ['tnnp-2004-w', 'fink-2008']
+model_list = ['tnnp-2004-w', 'fink-2008', 'tnnp-2004']
 cal_list = ['stim1hz', 'stim2hz', 'randstim']
 predict_list = ['stim1hz', 'stim2hz', 'randstim', 'hergblock']
 
