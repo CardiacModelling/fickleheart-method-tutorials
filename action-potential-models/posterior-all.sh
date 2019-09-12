@@ -6,16 +6,6 @@
 # with the specified model and model parameter posteriors (in `./out`).
 #
 
-# tnnp-2004-w posterior predictions
-#python posterior.py tnnp-2004-w stim1hz stim1hz
-#python posterior.py tnnp-2004-w stim1hz stim2hz
-#python posterior.py tnnp-2004-w stim1hz randstim
-#python posterior.py tnnp-2004-w stim1hz hergblock
-#python posterior.py tnnp-2004-w randstim stim1hz
-#python posterior.py tnnp-2004-w randstim stim2hz
-#python posterior.py tnnp-2004-w randstim randstim
-#python posterior.py tnnp-2004-w randstim hergblock
-
 # fink-2008 posterior predictions
 python posterior.py fink-2008 stim1hz stim1hz
 python posterior.py fink-2008 stim1hz stim2hz

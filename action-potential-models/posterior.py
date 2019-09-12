@@ -67,8 +67,37 @@ chains = np.asarray(chains)
 n_iter = len(chains[0])
 chains = chains[:, int(0.5 * n_iter)::5, :]
 
+# Protocol
+stim_list = {
+        'stim1hz': protocol.stim1hz,
+        'stim2hz': protocol.stim2hz,
+        'randstim': protocol.randstim,
+        'hergblock': protocol.stim1hz_hergblock,
+        }
+stim_seq = stim_list[which_predict]
+
+# Model
+model = m.Model(
+        './mmt-model-files/%s.mmt' % which_model,
+        stim_seq=stim_seq,
+        )
+model.set_name(which_model)
+
+model_t = m.Model(
+        './mmt-model-files/%s.mmt' % 'tnnp-2004',
+        stim_seq=stim_seq,
+        )
+model_t.set_name('tnnp-2004')
+
+# Re-noramlisation factor
+renormalisation = np.asarray(model.original) / np.asarray(model_t.original)
+renormalisation = np.append(renormalisation, 1)  # noise sigma
+
 # Just double checking, should all be the same
-_, axes = pints.plot.pairwise(chains[0], kde=False, ref_parameters=x0)
+renormalised_chain = chains[0] * renormalisation
+renormalised_x0 = x0 * renormalisation
+_, axes = pints.plot.pairwise(renormalised_chain, kde=False,
+        ref_parameters=renormalised_x0)
 for i in range(len(axes)):
     axes[i, 0].set_ylabel(parameter_names[i], fontsize=32)
     axes[-1, i].set_xlabel(parameter_names[i], fontsize=32)
@@ -88,22 +117,6 @@ if which_predict == 'hergblock':
     data = data.T
 else:
     data = [data]
-
-# Protocol
-stim_list = {
-        'stim1hz': protocol.stim1hz,
-        'stim2hz': protocol.stim2hz,
-        'randstim': protocol.randstim,
-        'hergblock': protocol.stim1hz_hergblock,
-        }
-stim_seq = stim_list[which_predict]
-
-# Model
-model = m.Model(
-        './mmt-model-files/%s.mmt' % which_model,
-        stim_seq=stim_seq,
-        )
-model.set_name(which_model)
 
 # Predict
 thinning = max(1, int(len(chains[0]) / 200))
