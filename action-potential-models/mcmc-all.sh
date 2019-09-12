@@ -17,3 +17,6 @@ nohup python mcmc.py tnnp-2004-w randstim >> log/mcmc-tnnpw-randstim.log 2>&1 &
 nohup python mcmc.py fink-2008 stim1hz >> log/mcmc-fink-stim1hz.log 2>&1 &
 nohup python mcmc.py fink-2008 randstim >> log/mcmc-fink-randstim.log 2>&1 &
 
+# Run tnnp-2004 models (check identifiability)
+nohup python mcmc.py tnnp-2004 stim1hz >> log/mcmc-tnnp-stim1hz.log 2>&1 &
+nohup python mcmc.py tnnp-2004 randstim >> log/mcmc-tnnp-randstim.log 2>&1 &
