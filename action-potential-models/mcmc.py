@@ -124,7 +124,7 @@ mcmc = pints.MCMCController(logposterior, 3, transform_x0_list,
 n_iter = 100000
 mcmc.set_max_iterations(n_iter)
 mcmc.set_initial_phase_iterations(int(0.05 * n_iter))
-mcmc.set_parallel(False)
+mcmc.set_parallel(True)
 mcmc.set_chain_filename('%s/%s-chain.csv' % (savedir, saveas))
 mcmc.set_log_pdf_filename('%s/%s-pdf.csv' % (savedir, saveas))
 chains = mcmc.run()
