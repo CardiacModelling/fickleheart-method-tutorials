@@ -17,7 +17,7 @@ import protocol
 Run fit.
 """
 
-model_list = ['tnnp-2004-w', 'fink-2008']
+model_list = ['tnnp-2004-w', 'fink-2008', 'tnnp-2004']
 data_list = ['stim1hz', 'stim2hz', 'randstim']
 
 try:
