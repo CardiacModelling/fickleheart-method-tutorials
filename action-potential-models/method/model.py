@@ -287,10 +287,12 @@ class Model(pints.ForwardModel):
         )
         simulation2.set_tolerance(1e-8, 1e-10)
         simulation2.set_max_step_size(1e-2)  # ms
+        # Get original state
+        original_state = simulation1.state()
         # Run
         simulation1.reset()
         simulation2.reset()
-        simulation1.set_state(self.original_state)
+        simulation1.set_state(original_state)
         simulation1.pre(100)
         simulation2.set_state(simulation1.state())
         # Log some beats
@@ -300,9 +302,9 @@ class Model(pints.ForwardModel):
             ).npview()
         # rename output names
         d_out = myokit.DataLog()
-        for s, c in m_cur.iteritems():
+        for s in m_cur:
             if s in self.parameters:
-                d_out[s[:-2]] = d[c]
+                d_out[s[:-2]] = d[m_cur[s]]
         del(d)
         return d_out
 
