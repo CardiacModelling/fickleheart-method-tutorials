@@ -25,6 +25,9 @@ currents = [(r'$\mathregular{I_{Na}}$', '#2b8cbe', '#a6bddb'),
 # Get voltage traces (stim1hz)
 stim_seq = p.stim1hz
 times = p.stim1hz_times
+idx_until = len(times) // 5
+stim_seq = stim_seq[:idx_until]
+times = times[:idx_until]
 
 model_tnnp = m.Model('./mmt-model-files/tnnp-2004.mmt', stim_seq=stim_seq)
 model_tnnp.set_name('tnnp-2004')
