@@ -22,10 +22,12 @@ currents = [(r'$\mathregular{I_{Na}}$', '#2b8cbe', '#a6bddb'),
          (r'$\mathregular{I_{NaK}}$', '#54278f', '#756bb1'),
          ]
 
+take_out = [0, 5, 7]  # identical kinetics
+
 # Get voltage traces (stim1hz)
 stim_seq = p.stim1hz
 times = p.stim1hz_times
-idx_until = len(times) // 5
+idx_until = int(len(times) // 10)
 stim_seq = stim_seq[:idx_until]
 times = times[:idx_until]
 
@@ -35,18 +37,24 @@ model_tnnp.set_name('tnnp-2004')
 model_fink = m.Model('./mmt-model-files/fink-2008.mmt', stim_seq=stim_seq)
 model_fink.set_name('fink-2008')
 
-# Simulate and add noise
+# Simulate voltage
 voltage = model_tnnp.simulate(np.ones(model_tnnp.n_parameters()), times)
+
+# Re-noramlisation factor
+renormalisation = np.asarray(model_fink.original) \
+        / np.asarray(model_tnnp.original)
+
+# Just double checking, should all be the same
+renormalised_fink = np.ones(model_fink.n_parameters()) * renormalisation 
 
 # Simulate current
 currents_tnnp = model_tnnp.current(np.ones(model_tnnp.n_parameters()),
         voltage, times)
-currents_fink = model_fink.current(np.ones(model_fink.n_parameters()),
-        voltage, times)
+currents_fink = model_fink.current(renormalised_fink, voltage, times)
 
 # Plot
-fig = plt.figure(figsize=(12, 5))
-grid = plt.GridSpec(5, 2, hspace=0.1, wspace=0.225)
+fig = plt.figure(figsize=(12, 6))
+grid = plt.GridSpec(4, 2, hspace=0.1, wspace=0.225)
 # Vm
 for i in range(2):
     vm_ax = fig.add_subplot(grid[0, i])
@@ -64,9 +72,11 @@ for i in range(2):
     vm_ax.spines['bottom'].set_visible(False)
 
 # currents
-for i, c in enumerate(m.parameters):
+plot_parameters = [p for i, p in enumerate(m.parameters) if i not in take_out]
+plot_currents = [c for i, c in enumerate(currents) if i not in take_out]
+for i, c in enumerate(plot_parameters):
     n = c[:-2]
-    gx, gy = i % 4, int(i // 4)
+    gx, gy = i % 3, int(i // 3)
     ax = fig.add_subplot(grid[gx + 1, gy])
     ax.plot(times, currents_tnnp[n], c='#2b8cbe', lw=2)
     ax.fill_between(times, 0, currents_tnnp[n], color='#a6bddb', alpha=0.5)
@@ -75,10 +85,10 @@ for i, c in enumerate(m.parameters):
     # Change y-ticks
     yticks = ax.get_yticks()
     ax.set_yticks([yticks[1], yticks[-2]])
-    ax.set_ylabel(currents[i][0], rotation=0, fontsize=16)
+    ax.set_ylabel(plot_currents[i][0], rotation=0, fontsize=16)
     ax.get_yaxis().set_label_coords(-0.15, 0.5)
     # Change frame and x-ticks
-    if gx + 1 != 4:
+    if gx + 1 != 3:
         ax.tick_params(axis='x',
                        which='both',
                        bottom=False,
@@ -100,6 +110,7 @@ for i, c in enumerate(m.parameters):
         ax.spines['right'].set_visible(False)
 
 grid.tight_layout(fig, pad=1.0, rect=(0.01, 0.01, 1, 1))
+#grid.update(wspace=0.1, hspace=0.05)
 plt.savefig('fig/model-differences.png', bbox_inch='tight', pad_inches=0)
 #plt.savefig('fig/model-differences.pdf', format='pdf', bbox_inch='tight',
 #        pad_inches=0, transparent=True)

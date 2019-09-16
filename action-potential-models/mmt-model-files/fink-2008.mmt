@@ -153,8 +153,9 @@ i_b_Ca = g_bca * (V - rev.E_Ca)
 #
 [ik1]
 use membrane.V
-i_K1 = g_K1_0 * (phys.T / 35 - 55 / 7) * sqrt(ion.K_o / 5.4) * xK1_inf * (V - rev.E_K)
+i_K1 = g_K1 * sqrt(ion.K_o / 5.4) * xK1_inf * (V - rev.E_K)
     in [A/F]
+g_K1 = g_K1_0 * (phys.T / 35 - 55 / 7) in [1/ms]
 g_K1_0 = 0.6821 [1/ms]
 xK1_inf = phi * rec1 + (1 - phi) * rec2
     KbMg = 0.45 * exp(-(V - fac * rev.E_K) / 20)
@@ -176,7 +177,8 @@ xK1_inf = phi * rec1 + (1 - phi) * rec2
 [ikr]
 use membrane.V
 g_Kr_0 = 0.024 [1/ms]
-i_Kr = g_Kr_0 * (phys.T / 35 - 55 / 7) * sqrt(ion.K_o / 5.4) * Or4 * (V - rev.E_K)
+g_Kr = g_Kr_0 * (phys.T / 35 - 55 / 7) in [1/ms]
+i_Kr = g_Kr * sqrt(ion.K_o / 5.4) * Or4 * (V - rev.E_K)
     in [A/F]
 # Markov model
 T_Base = 310 [K]
