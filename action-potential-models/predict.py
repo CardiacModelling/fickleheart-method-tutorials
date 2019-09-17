@@ -18,6 +18,8 @@ Run prediction.
 model_list = ['tnnp-2004-w', 'fink-2008', 'tnnp-2004']
 cal_list = ['stim1hz', 'stim2hz', 'randstim']
 predict_list = ['stim1hz', 'stim2hz', 'randstim', 'hergblock']
+data_colour = ['#3182bd', '#7b3294']
+model_colour = ['#fd8d3c', '#d7191c']
 
 try:
     which_model = sys.argv[1]
@@ -96,8 +98,8 @@ else:
 fig, axes = plt.subplots(1, 1, sharex=True, figsize=(8, 4))
 is_predict = 'Prediction' if which_cal != which_predict else 'Fitted model'
 for i, (d, p) in enumerate(zip(data, prediction)):
-    axes.plot(times, d, c='C' + str(i), alpha=0.5, label='Data' + legend[i])
-    axes.plot(times, p, c='C' + str(i), ls='--',
+    axes.plot(times, d, c=data_colour[i], alpha=0.8, label='Data' + legend[i])
+    axes.plot(times, p, c=model_colour[i], ls='--', lw=1.5,
             label=is_predict + legend[i])
 axes.legend(loc=1)
 axes.set_ylabel('Voltage (mV)')
