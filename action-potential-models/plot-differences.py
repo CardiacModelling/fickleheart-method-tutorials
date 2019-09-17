@@ -45,7 +45,7 @@ renormalisation = np.asarray(model_fink.original) \
         / np.asarray(model_tnnp.original)
 
 # Just double checking, should all be the same
-renormalised_fink = np.ones(model_fink.n_parameters()) * renormalisation 
+renormalised_fink = np.ones(model_fink.n_parameters()) #* renormalisation
 
 # Simulate current
 currents_tnnp = model_tnnp.current(np.ones(model_tnnp.n_parameters()),
@@ -88,7 +88,7 @@ for i, c in enumerate(plot_parameters):
     ax.set_ylabel(plot_currents[i][0], rotation=0, fontsize=16)
     ax.get_yaxis().set_label_coords(-0.15, 0.5)
     # Change frame and x-ticks
-    if gx + 1 != 3:
+    if i not in [2, 4]:
         ax.tick_params(axis='x',
                        which='both',
                        bottom=False,
@@ -110,7 +110,7 @@ for i, c in enumerate(plot_parameters):
         ax.spines['right'].set_visible(False)
 
 grid.tight_layout(fig, pad=1.0, rect=(0.01, 0.01, 1, 1))
-#grid.update(wspace=0.1, hspace=0.05)
+grid.update(wspace=0.175, hspace=0.1)
 plt.savefig('fig/model-differences.png', bbox_inch='tight', pad_inches=0)
 #plt.savefig('fig/model-differences.pdf', format='pdf', bbox_inch='tight',
 #        pad_inches=0, transparent=True)
