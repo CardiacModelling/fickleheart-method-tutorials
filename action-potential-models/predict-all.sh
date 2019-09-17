@@ -26,13 +26,3 @@ python predict.py fink-2008 randstim stim2hz
 python predict.py fink-2008 randstim randstim
 python predict.py fink-2008 randstim hergblock
 
-# Calibrated tnnp-2004 predictions (check identifiability)
-python predict.py tnnp-2004 stim1hz stim1hz
-python predict.py tnnp-2004 stim1hz stim2hz
-python predict.py tnnp-2004 stim1hz randstim
-python predict.py tnnp-2004 stim1hz hergblock
-python predict.py tnnp-2004 randstim stim1hz
-python predict.py tnnp-2004 randstim stim2hz
-python predict.py tnnp-2004 randstim randstim
-python predict.py tnnp-2004 randstim hergblock
-

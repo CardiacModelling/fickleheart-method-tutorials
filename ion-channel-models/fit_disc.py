@@ -12,7 +12,9 @@ import pints
 import model as m
 import parametertransform
 import priors
-
+import priors
+from priors import HalfNormalLogPrior, InverseGammaLogPrior
+from sparse_gp_custom_likelihood import DiscrepancyLogLikelihood
 """
 Run fit.
 """
@@ -69,8 +71,8 @@ data = np.loadtxt(data_dir + '/' + data_file_name,
                   delimiter=',', skiprows=1)  # headers
 times = data[:, 0]
 data = data[:, 1]
-noise_sigma = np.std(data[:500])
-print('Estimated noise level: ', noise_sigma)
+noise_sigma = np.log(np.std(data[:500]))
+print('Estimated noise level: ', np.exp(noise_sigma))
 
 # Model
 model = m.Model(info.model_file,
@@ -90,16 +92,30 @@ LogPrior = {
 model.set_fixed_form_voltage_protocol(protocol, protocol_times)
 
 # Create Pints stuffs
+inducing_times = times[::1000] #Note to Chon: These are the inducing or speudo training points for the FITC GP
 problem = pints.SingleOutputProblem(model, times, data)
-loglikelihood = pints.GaussianKnownSigmaLogLikelihood(problem, noise_sigma)
-logprior = LogPrior[info_id](transform_to_model_param,
+loglikelihood = DiscrepancyLogLikelihood(problem, inducing_times, downsample=100) #Note to Chon: downsample=100<--change this to 1 or None when not debugging
+logmodelprior = LogPrior[info_id](transform_to_model_param,
         transform_from_model_param)
+# Priors for discrepancy
+# I have transformed all the discrepancy priors as well
+lognoiseprior = HalfNormalLogPrior(sd=25,transform=True) # This will have considerable mass at the initial value
+logrhoprior = InverseGammaLogPrior(alpha=5,beta=5,transform=True) # As suggested in STAN manual
+logkersdprior = InverseGammaLogPrior(alpha=5,beta=5,transform=True) # As suggested in STAN manual
+
+ 
+logprior = pints.ComposedLogPrior(logmodelprior, lognoiseprior, logrhoprior, logkersdprior)
 logposterior = pints.LogPosterior(loglikelihood, logprior)
 
 # Check logposterior is working fine
+initial_rho = logrhoprior.sample()#np.log(0.5) # Initialise Kernel hyperparameter \rho
+initial_ker_sigma = logkersdprior.sample()#np.log(5.0) # Initialise Kernel hyperparameter \ker_sigma
+
 priorparams = np.copy(info.base_param)
 transform_priorparams = transform_from_model_param(priorparams)
-print('Score at prior parameters: ',
+priorparams = np.hstack((priorparams, noise_sigma, initial_rho, initial_ker_sigma))
+transform_priorparams = np.hstack((transform_priorparams, noise_sigma, initial_rho, initial_ker_sigma))
+print('Posterior at prior parameters: ',
         logposterior(transform_priorparams))
 for _ in range(10):
     assert(logposterior(transform_priorparams) ==\
@@ -160,49 +176,6 @@ print(np.std(logposteriors))
 print('Worst logposterior:')
 print(logposteriors[-1])
 
-# Extract best 3
-obtained_logposterior0 = logposteriors[0]
-obtained_parameters0 = params[0]
-obtained_logposterior1 = logposteriors[1]
-obtained_parameters1 = params[1]
-obtained_logposterior2 = logposteriors[2]
-obtained_parameters2 = params[2]
-
-# Show results
-print('Found solution:          Old parameters:' )
-# Store output
-with open('%s/%s-solution-%s-1.txt' % (savedir, saveas, fit_seed), 'w') as f:
-    for k, x in enumerate(obtained_parameters0):
-        print(pints.strfloat(x) + '    ' + pints.strfloat(priorparams[k]))
-        f.write(pints.strfloat(x) + '\n')
-print('Found solution:          Old parameters:' )
-# Store output
-with open('%s/%s-solution-%s-2.txt' % (savedir, saveas, fit_seed), 'w') as f:
-    for k, x in enumerate(obtained_parameters1):
-        print(pints.strfloat(x) + '    ' + pints.strfloat(priorparams[k]))
-        f.write(pints.strfloat(x) + '\n')
-print('Found solution:          Old parameters:' )
-# Store output
-with open('%s/%s-solution-%s-3.txt' % (savedir, saveas, fit_seed), 'w') as f:
-    for k, x in enumerate(obtained_parameters2):
-        print(pints.strfloat(x) + '    ' + pints.strfloat(priorparams[k]))
-        f.write(pints.strfloat(x) + '\n')
-
-fig, axes = plt.subplots(2, 1, sharex=True, figsize=(8, 6))
-sol0 = problem.evaluate(transform_from_model_param(obtained_parameters0))
-sol1 = problem.evaluate(transform_from_model_param(obtained_parameters1))
-sol2 = problem.evaluate(transform_from_model_param(obtained_parameters2))
-vol = model.voltage(times)
-axes[0].plot(times, vol, c='#7f7f7f')
-axes[0].set_ylabel('Voltage (mV)')
-axes[1].plot(times, data, alpha=0.5, label='data')
-axes[1].plot(times, sol0, label='found solution 1')
-axes[1].plot(times, sol1, label='found solution 2')
-axes[1].plot(times, sol2, label='found solution 3')
-axes[1].legend()
-axes[1].set_ylabel('Current (pA)')
-axes[1].set_xlabel('Time (ms)')
-plt.subplots_adjust(hspace=0)
-plt.savefig('%s/%s-solution-%s.png' % (savedir, saveas, fit_seed),
-        bbox_inches='tight')
-plt.close()
+"""
+Note to Chon somehow we need to transform both the model as well as the discrepancy and noise parameters back to constrained <0 space.
+"""

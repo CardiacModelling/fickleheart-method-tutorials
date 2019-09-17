@@ -139,7 +139,7 @@ g_pCa = 0.825
 i_p_Ca = g_pCa * calcium_dynamics.Ca_i / (calcium_dynamics.Ca_i + K_pCa)
     in [A/F]
 
-[engine]
+[environment]
 time = 0 bind time
     in [ms]
 pace = 0 bind pace
@@ -215,9 +215,9 @@ dot(V) = -1 / 1 * (inward_rectifier_potassium_current.i_K1 + transient_outward_c
     in [mV]
 V_c = 0.016404
     in [um^3]
-i_Stim = engine.pace * stim_amplitude
+i_Stim = environment.pace * stim_amplitude
     in [A/F]
-#i_Stim = piecewise(engine.time - floor(engine.time / stim_period) * stim_period >= stim_start and engine.time - floor(engine.time / stim_period) * stim_period <= stim_start + stim_duration, -stim_amplitude, 0 [A/F])
+#i_Stim = piecewise(environment.time - floor(environment.time / stim_period) * stim_period >= stim_start and environment.time - floor(environment.time / stim_period) * stim_period <= stim_start + stim_duration, -stim_amplitude, 0 [A/F])
 #    in [A/F]
 stim_amplitude = -52
     in [A/F]

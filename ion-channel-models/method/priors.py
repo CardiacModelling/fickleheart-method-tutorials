@@ -2,6 +2,7 @@
 import sys
 sys.path.append('../lib/')
 import numpy as np
+import scipy.stats as stats
 import pints
 
 
@@ -69,6 +70,7 @@ class ModelALogPrior(pints.LogPrior):
     def __call__(self, parameters):
 
         debug = False
+        log_det_Jac = np.sum(parameters) # Jacobian adjustment, Note to Chon: You need this to get the correct probability 
         parameters = self.transform(parameters)
 
         # Check parameter boundaries
@@ -102,7 +104,7 @@ class ModelALogPrior(pints.LogPrior):
             if debug: print('r4')
             return self.minf
 
-        return 0
+        return 0 + log_det_Jac
 
     def _sample_partial(self, v):
         for i in range(100):
@@ -189,6 +191,7 @@ class ModelBLogPrior(pints.LogPrior):
     def __call__(self, parameters):
 
         debug = False
+        log_det_Jac = np.sum(parameters) 
         parameters = self.transform(parameters)
 
         # Check parameter boundaries
@@ -218,7 +221,7 @@ class ModelBLogPrior(pints.LogPrior):
                 if debug: print('r with p%s' % (j))
                 return self.minf
 
-        return 0
+        return 0 + log_det_Jac
 
     def _sample_partial(self, v):
         for i in range(100):
@@ -281,3 +284,56 @@ class MultiPriori(pints.LogPrior):
         return t
 
 
+##### Some useful priors #####
+class HalfNormalLogPrior(pints.LogPrior):
+    def __init__(self, sd, transform=False):
+        super(HalfNormalLogPrior, self).__init__()
+        # Test inputs
+        if float(sd) <= 0:
+            raise ValueError('Scale must be positive')
+        self._sd = float(sd)
+        self.n_params = 1
+        self.transform = transform
+
+    def n_parameters(self):
+        return self.n_params
+    def __call__(self, x):
+        if self.transform:
+            Utx_x = np.exp(x)
+            logp = stats.halfnorm.logpdf(Utx_x, scale=self._sd) + x
+        else:
+            logp = stats.halfnorm.logpdf(x, scale=self._sd)
+        return logp
+    def sample(self):
+        if self.transform:
+            sample = np.log(stats.halfnorm(scale=self._sd).rvs(1))
+        else:
+            sample = stats.halfnorm(scale=self._sd).rvs(1)
+        return sample
+
+class InverseGammaLogPrior(pints.LogPrior):
+    def __init__(self, alpha, beta, transform = False):
+        super(InverseGammaLogPrior, self).__init__()
+        # Test inputs
+        if (float(alpha) or float(beta)) <= 0:
+            raise ValueError('Shape and Scale must be positive')
+        self._alpha = float(alpha)
+        self._beta = float(beta)
+        self.n_params = 1
+        self.transform = transform
+
+    def n_parameters(self):
+        return self.n_params
+    def __call__(self, x):
+        if self.transform:
+            Utx_x = np.exp(x)
+            logp = stats.invgamma.logpdf(Utx_x,a=self._alpha,scale=self._beta) + x
+        else:
+            logp = stats.invgamma.logpdf(x,a=self._alpha,scale=self._beta) 
+        return logp
+    def sample(self):
+        if self.transform:
+            sample = np.log(stats.invgamma(a=self._alpha,scale=self._beta).rvs(1) )
+        else:
+            sample = stats.invgamma(a=self._alpha,scale=self._beta).rvs(1) 
+        return sample

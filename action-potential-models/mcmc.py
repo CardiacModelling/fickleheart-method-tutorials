@@ -19,7 +19,7 @@ import protocol
 Run MCMC assuming iid Gaussian noise.
 """
 
-model_list = ['tnnp-2004-w', 'fink-2008', 'tnnp-2004']
+model_list = ['tnnp-2004-w', 'fink-2008']
 data_list = ['stim1hz', 'stim2hz', 'randstim']
 
 try:
@@ -124,7 +124,7 @@ mcmc = pints.MCMCController(logposterior, 3, transform_x0_list,
 n_iter = 100000
 mcmc.set_max_iterations(n_iter)
 mcmc.set_initial_phase_iterations(int(0.05 * n_iter))
-mcmc.set_parallel(True)
+mcmc.set_parallel(False)
 mcmc.set_chain_filename('%s/%s-chain.csv' % (savedir, saveas))
 mcmc.set_log_pdf_filename('%s/%s-pdf.csv' % (savedir, saveas))
 chains = mcmc.run()
