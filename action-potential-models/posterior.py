@@ -21,6 +21,8 @@ Run posterior prediction.
 model_list = ['tnnp-2004-w', 'fink-2008', 'tnnp-2004']
 cal_list = ['stim1hz', 'stim2hz', 'randstim']
 predict_list = ['stim1hz', 'stim2hz', 'randstim', 'hergblock']
+data_colour = ['#3182bd', '#7b3294']
+model_colour = ['#fd8d3c', '#d7191c']
 
 try:
     which_model = sys.argv[1]
@@ -114,7 +116,7 @@ data = np.loadtxt(data_dir + '/' + data_file_name,
 times = data[:, 0]
 data = data[:, 1:]
 if which_predict == 'hergblock':
-    data = data.T
+    data = data.T[[0, 3]]
 else:
     data = [data]
 
@@ -123,26 +125,39 @@ thinning = max(1, int(len(chains[0]) / 200))
 if which_predict == 'hergblock':
     prediction = []
     for params in chains[0][::thinning, :model.n_parameters()]:
-        prediction.append(protocol.hergblock_simulate(model, params, times))
+        prediction.append(protocol.hergblock_simulate(model, params, times)
+                [[0, 3]])
     mean_values = np.mean(prediction, axis=0)
+
+    legend = [' 0% block', ' 25% block', ' 50% block', ' 75% block',
+            ' 100% block']
+    legend = [legend[0], legend[3]]
 else:
     prediction = []
     for params in chains[0][::thinning, :model.n_parameters()]:
         prediction.append(model.simulate(params, times))
     mean_values = np.mean(prediction, axis=0)
+    legend = ['']
 
 # Plot
 fig, axes = plt.subplots(1, 1, sharex=True, figsize=(8, 4))
+is_predict = 'Prediction' if which_cal != which_predict else 'Fitted model'
 for i, d in enumerate(data):
-    axes.plot(times, d, c='C' + str(i), alpha=0.5, label='data')
+    axes.plot(times, d, c=data_colour[i], alpha=0.9, label='Data' + legend[i])
 if which_predict == 'hergblock':
-    for predicted_values in prediction:
+    for i, p in enumerate(prediction[0]):
+        axes.plot(times, p, c=model_colour[i], alpha=0.5, ls='--',
+                label=is_predict + legend[i])
+    for predicted_values in prediction[1:]:
         for i, p in enumerate(predicted_values):
-            axes.plot(times, p, c='C' + str(i), alpha=0.2, ls='--')
+            axes.plot(times, p, c=model_colour[i], alpha=0.1, ls='--')
 else:
-    for predicted_values in prediction:
-        axes.plot(times, predicted_values, c='C0', alpha=0.2, ls='--')
-# axes.legend()
+    axes.plot(times, prediction[0], c=model_colour[0], alpha=0.5,
+            ls='--', label=is_predict + legend[i])
+    for predicted_values in prediction[1:]:
+        axes.plot(times, predicted_values, c=model_colour[0], alpha=0.2,
+                ls='--')
+axes.legend()
 axes.set_ylabel('Voltage (mV)')
 axes.set_xlabel('Time (ms)')
 plt.subplots_adjust(hspace=0)
