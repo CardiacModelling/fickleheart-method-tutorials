@@ -266,7 +266,7 @@ class ModelBLogPrior(pints.LogPrior):
 #
 class MultiPriori(pints.LogPrior):
     """
-    Combine multiple priors
+    Combine multiple priors.
     """
     def __init__(self, priors):
         self._priors = priors
@@ -289,7 +289,7 @@ class MultiPriori(pints.LogPrior):
 #
 class HalfNormalLogPrior(pints.LogPrior):
     """
-    Half-Normal log-prior
+    Half-Normal log-prior.
     """
     def __init__(self, sd, transform=False):
         super(HalfNormalLogPrior, self).__init__()
@@ -306,7 +306,8 @@ class HalfNormalLogPrior(pints.LogPrior):
     def __call__(self, x):
         if self.transform:
             Utx_x = np.exp(x)
-            logp = stats.halfnorm.logpdf(Utx_x, scale=self._sd) + x
+            logp = stats.halfnorm.logpdf(Utx_x, scale=self._sd)
+            logp += x
         else:
             logp = stats.halfnorm.logpdf(x, scale=self._sd)
         return np.sum(logp)
@@ -318,9 +319,10 @@ class HalfNormalLogPrior(pints.LogPrior):
             sample = stats.halfnorm(scale=self._sd).rvs(n)
         return sample
 
+
 class InverseGammaLogPrior(pints.LogPrior):
     """
-    Inverse-Gamma log-prior
+    Inverse-Gamma log-prior.
     """
     def __init__(self, alpha, beta, transform = False):
         super(InverseGammaLogPrior, self).__init__()
@@ -338,20 +340,22 @@ class InverseGammaLogPrior(pints.LogPrior):
     def __call__(self, x):
         if self.transform:
             Utx_x = np.exp(x)
-            logp = stats.invgamma.logpdf(Utx_x,a=self._alpha,scale=self._beta) + x
+            logp = stats.invgamma.logpdf(Utx_x, a=self._alpha,
+                    scale=self._beta)
+            logp += x
         else:
-            logp = stats.invgamma.logpdf(x,a=self._alpha,scale=self._beta) 
+            logp = stats.invgamma.logpdf(x, a=self._alpha, scale=self._beta)
         return np.sum(logp)
 
     def sample(self, n=1):
         if self.transform:
-            sample = np.log(stats.invgamma(a=self._alpha,scale=self._beta).rvs(n))
+            sample = np.log(stats.invgamma(a=self._alpha,
+                    scale=self._beta).rvs(n))
         else:
-            sample = stats.invgamma(a=self._alpha,scale=self._beta).rvs(n)
+            sample = stats.invgamma(a=self._alpha, scale=self._beta).rvs(n)
         return sample
 
 
 #
 # Some useful for ARMA
 #
-
