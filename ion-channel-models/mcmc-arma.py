@@ -263,4 +263,5 @@ pdic = np.mean(pdic)
 pdic = 2.0 * (armax_result.model.loglike_kalman(armax_params) - pdic)
 DIC = -2.0 * armax_result.model.loglike_kalman(armax_params) + 2 * pdic
 print('DIC for ARMAX(%s, %s): %s' % (arma_p, arma_q, DIC))
+np.savetxt('%s/%s-DIC.txt' % (savedir, saveas), [DIC])
 
