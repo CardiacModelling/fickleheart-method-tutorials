@@ -4,8 +4,12 @@ This repo contains the code for reproducing the results in the tutorials in the 
 
 ### Requirements
 
-The code requires Python (2.7 or 3.6+) and two dependencies:
-[PINTS](https://github.com/pints-team/pints#installing-pints) and [Myokit](http://myokit.org/install/).
+The code requires Python (3.5+) and two dependencies:
+- [PINTS](https://github.com/pints-team/pints#installing-pints)
+- [Myokit](http://myokit.org/install/)
+- [Theano](http://deeplearning.net/software/theano/install.html)
+- [StatsModels](https://www.statsmodels.org/stable/install.html)
+- [Joblib](https://joblib.readthedocs.io/en/latest/installing.html)
 
 For Linux/macOS, you may try
 ```console
@@ -21,7 +25,7 @@ $ pip install .
 $ cd -
 $ pip install Theano                    # Get Theano
 $ pip install statsmodels               # Get StatsModels
-$ pip install sklearn                   # Get scikit-learn
+$ pip install joblib                    # Get Joblib
 ```
 
 
