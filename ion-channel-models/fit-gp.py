@@ -70,8 +70,8 @@ data = np.loadtxt(data_dir + '/' + data_file_name,
                   delimiter=',', skiprows=1)  # headers
 times = data[:, 0]
 data = data[:, 1]
-noise_sigma = np.log(np.std(data[:500]))
-print('Estimated noise level: ', np.exp(noise_sigma))
+noise_sigma = np.std(data[:500])
+print('Estimated noise level: ', noise_sigma)
 
 # Model
 model = m.Model(info.model_file,
@@ -102,7 +102,7 @@ logmodelprior = LogPrior[info_id](transform_to_model_param,
 lognoiseprior = HalfNormalLogPrior(sd=25, transform=True)
 logrhoprior = InverseGammaLogPrior(alpha=5, beta=5, transform=True)
 logkersdprior = InverseGammaLogPrior(alpha=5, beta=5, transform=True)
-# Compose all priors 
+# Compose all priors
 logprior = pints.ComposedLogPrior(logmodelprior, lognoiseprior, logrhoprior,
         logkersdprior)
 logposterior = pints.LogPosterior(loglikelihood, logprior)
