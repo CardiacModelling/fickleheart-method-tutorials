@@ -1,6 +1,4 @@
-#!/usr/bin/env python
-import sys
-sys.path.append('../lib/')
+from __future__ import print_function
 import numpy as np
 import scipy.stats as stats
 import pints
@@ -359,3 +357,26 @@ class InverseGammaLogPrior(pints.LogPrior):
 #
 # Some useful for ARMA
 #
+class ArmaLogPrior(pints.LogPrior):
+    """
+    Log prior for ARMA model.
+    """
+    def __init__(self, armax_result, left, right, scale):
+        super(ArmaLogPrior, self).__init__()
+        self._location  = armax_result.params[1:]
+        self._scale = float(scale)
+        self.a = float(left)
+        self.b = float(right)
+        self.n_params = len(armax_result.params) - 1
+
+    def n_parameters(self):
+        return self.n_params
+
+    def __call__(self, x):
+        return np.sum(stats.truncnorm.logpdf(x, self.a, self.b, self._location,
+                self._scale))
+
+    def sample(self, n=1):
+        return np.array(stats.truncnorm(self.a, self.b, self._location,
+                self._scale).rvs(n))
+
