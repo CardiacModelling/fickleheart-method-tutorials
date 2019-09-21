@@ -18,7 +18,7 @@ import joblib
 import model as m
 import parametertransform
 import priors
-from priors import HalfNormalLogPrior, InverseGammaLogPrior, ArmaLogPrior
+from priors import ArmaLogPrior
 from armax_ode_tsa_likelihood import DiscrepancyLogLikelihood
 
 """
@@ -80,7 +80,7 @@ data = np.loadtxt(data_dir + '/' + data_file_name,
                   delimiter=',', skiprows=1)  # headers
 times = data[:, 0]
 data = data[:, 1]
-noise_sigma = np.log(np.std(data[:500]))
+noise_sigma = np.std(data[:500])
 
 print('Estimated noise level: ', noise_sigma)
 
