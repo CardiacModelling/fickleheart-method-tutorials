@@ -19,7 +19,7 @@ $ pip3 install myokit                   # Get Myokit, might need external instal
 $ cd /path/to/pints                     # Get PINTS
 $ pip install .
 $ cd -
-$ pip install pymc3                     # Get Theano
+$ pip install Theano                    # Get Theano
 $ pip install statsmodels               # Get StatsModels
 $ pip install sklearn                   # Get scikit-learn
 ```
