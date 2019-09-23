@@ -129,7 +129,8 @@ else:
 
 # Create Pints stuffs
 problem = pints.SingleOutputProblem(model, times, data)
-loglikelihood = DiscrepancyLogLikelihood(problem, armax_result) #ARMAX likelihood 
+# ARMAX likelihood
+loglikelihood = DiscrepancyLogLikelihood(problem, armax_result)
 logmodelprior = LogPrior[info_id](transform_to_model_param,
         transform_from_model_param)
 # Priors for discrepancy; NOTE: Worth checking out more wider/narrower priors
@@ -190,7 +191,8 @@ chains_final = chains[:, int(0.5 * n_iter)::1, :]
 chains_param = chains_param[:, int(0.5 * n_iter)::1, :]
 
 transform_x0 = transform_x0_list[0]
-x0 = np.append(transform_to_model_param(transform_x0[:-n_arama]), transform_x0[-n_arama:])
+x0 = np.append(transform_to_model_param(transform_x0[:-n_arama]),
+        transform_x0[-n_arama:])
 
 pints.plot.pairwise(chains_param[0], kde=False, ref_parameters=x0)
 plt.savefig('%s/%s-fig1.png' % (savedir, saveas))
@@ -209,11 +211,12 @@ plt.close('all')
 # identitiy trick.
 # -----------------------------------------------------------------------------
 ppc_samples = chains_param[0]
-armax_mean =[]
+ppc_size = np.size(ppc_samples, axis=0)
+armax_mean = []
 armax_sd = []
 pdic = []
 
-for ind in np.random.choice(range(0, np.size(ppc_samples, axis=0)), 100):
+for ind in np.random.choice(range(0, ppc_size), 100, replace=False):
     ode_params = transform_from_model_param(ppc_samples[ind, :-n_arama])
     ode_sol = model.simulate(ode_params, times)
     armax_params = np.append(1.0, ppc_samples[ind, -n_arama:])

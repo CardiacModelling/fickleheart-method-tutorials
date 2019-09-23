@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import model as m
 
 """
-Run fit.
+Run prediction.
 """
 
 model_list = ['A', 'B', 'C']
