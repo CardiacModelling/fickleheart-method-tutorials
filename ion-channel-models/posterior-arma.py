@@ -11,15 +11,9 @@ import pints
 import pints.io
 import pints.plot
 import statsmodels.api as sm
-from statsmodels.tsa.arima_process import arma2ma
-#from sklearn.externals import joblib
 import joblib
 
 import model as m
-import parametertransform
-import priors
-from priors import ArmaLogPrior
-from armax_ode_tsa_likelihood import DiscrepancyLogLikelihood
 
 """
 Posterior predictive with ARMA noise model.
@@ -66,17 +60,28 @@ loaddir = './out/mcmc-' + info_id + '-arma_%s_%s' % (arma_p, arma_q)
 loadas = info_id + '-sinewave'
 
 # Protocol
+protocol_train = np.loadtxt('./protocol-time-series/sinewave.csv', skiprows=1,
+        delimiter=',')
+protocol_train_times = protocol_train[:, 0]
+protocol_train = protocol_train[:, 1]
+
 protocol = np.loadtxt('./protocol-time-series/%s.csv' % which_predict,
         skiprows=1, delimiter=',')
 protocol_times = protocol[:, 0]
 protocol = protocol[:, 1]
 
 # Load data
+data_train = np.loadtxt(data_dir + '/data-sinewave.csv',
+                  delimiter=',', skiprows=1)  # headers
+times_train = data_train[:, 0]
+data_train = data_train[:, 1]
+
 data = np.loadtxt(data_dir + '/' + data_file_name,
                   delimiter=',', skiprows=1)  # headers
 times = data[:, 0]
 data = data[:, 1]
 
+# Load model
 model = m.Model(info.model_file,
         variables=info.parameters,
         current_readout=info.current_list,
@@ -85,8 +90,8 @@ model = m.Model(info.model_file,
         temperature=273.15 + info.temperature,  # K
         )
 
-# Update protocol
-model.set_fixed_form_voltage_protocol(protocol, protocol_times)
+# Update protocol to training protocol
+model.set_fixed_form_voltage_protocol(protocol_train, protocol_train_times)
 
 # Load fitting results
 calloaddir = './out/' + info_id
@@ -100,9 +105,12 @@ for i in fit_idx:
 
 # Fit an armax model to get ballpark estmates of starting arma parameters
 cmaes_params = model_x0_list[0]
-exog_current = model.simulate(cmaes_params, times)[:, None]
+exog_current = model.simulate(cmaes_params, times_train)[:, None]
 armax_result = joblib.load('%s/%s-armax.pkl' % (loaddir, loadas))
 n_arama = len(armax_result.params[armax_result.k_exog:])
+
+# Update protocol to predicting protocol
+model.set_fixed_form_voltage_protocol(protocol, protocol_times)
 
 # Load MCMC results
 ppc_samples = pints.io.load_samples('%s/%s-chain_0.csv' % (loaddir, loadas))
@@ -119,7 +127,6 @@ ppc_samples = pints.io.load_samples('%s/%s-chain_0.csv' % (loaddir, loadas))
 ppc_size = np.size(ppc_samples, axis=0)
 armax_mean = []
 armax_sd = []
-pdic = []
 
 for ind in np.random.choice(range(0, ppc_size), 100, replace=False):
     ode_params = np.copy(ppc_samples[ind, :-n_arama])
@@ -129,15 +136,11 @@ for ind in np.random.choice(range(0, ppc_size), 100, replace=False):
     armax_result.arparams = armax_params[armax_result.k_exog:\
             armax_result.k_ar + armax_result.k_exog]
     armax_result.maparams = armax_params[-armax_result.k_ma:]
-    armax_result.model.exog = exog_current
+    armax_result.model.exog = exog_current  # 'old sim.' from training prtocol
     mean, sd, _ = armax_result.forecast(steps=len(times), exog=ode_sol)
     armax_result.model.exog = ode_sol[:, None]
-    armax_result.model.transparams = True
-    ll = armax_result.model.loglike_kalman(armax_params)
-    if (ll is not np.inf) and (ll is not np.nan):
-        pdic.append(ll)
-        armax_mean.append(mean)
-        armax_sd.append(sd)
+    armax_mean.append(mean)
+    armax_sd.append(sd)
 
 armax_mean = np.array(armax_mean)
 armax_sd = np.array(armax_sd)
@@ -148,7 +151,7 @@ var3 = (np.mean(armax_mean, axis=0))**2
 ppc_sd = np.sqrt(var1 + var2 + var3)
 
 plt.figure(figsize=(8, 6))
-plt.plot(times, data, label='Model C')
+plt.plot(times, data, label='Data')
 plt.plot(times, ppc_mean, label='Mean')
 plt.plot(times, ppc_mean + 2 * ppc_sd, '-', color='blue', lw=0.5,
         label='conf_int')
@@ -157,3 +160,5 @@ plt.legend()
 plt.xlabel('Time (ms)')
 plt.ylabel('Current (pA)')
 plt.savefig('%s/%s-pp.png' % (savedir, saveas))
+plt.close()
+
