@@ -12,6 +12,7 @@ import pints.io
 import pints.plot
 import statsmodels.api as sm
 import joblib
+from scipy.stats import norm as scipy_stats_norm
 
 import model as m
 
@@ -153,9 +154,10 @@ ppc_sd = np.sqrt(var1 + var2 + var3)
 plt.figure(figsize=(8, 6))
 plt.plot(times, data, label='Data')
 plt.plot(times, ppc_mean, label='Mean')
-plt.plot(times, ppc_mean + 2 * ppc_sd, '-', color='blue', lw=0.5,
-        label='conf_int')
-plt.plot(times, ppc_mean - 2 * ppc_sd, '-', color='blue', lw=0.5)
+n_sd = scipy_stats_norm.ppf(1. - .05 / 2.)
+plt.plot(times, ppc_mean + n_sd * ppc_sd, '-', color='blue', lw=0.5,
+        label='95% C.I.')
+plt.plot(times, ppc_mean - n_sd * ppc_sd, '-', color='blue', lw=0.5)
 plt.legend()
 plt.xlabel('Time (ms)')
 plt.ylabel('Current (pA)')
