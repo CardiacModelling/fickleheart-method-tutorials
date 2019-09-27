@@ -4,7 +4,7 @@ This repo contains the code for reproducing the results in the tutorials in the 
 
 ### Requirements
 
-The code requires Python (3.5+) and two dependencies:
+The code requires Python (3.5+) and the following dependencies:
 - [PINTS](https://github.com/pints-team/pints#installing-pints)
 - [Myokit](http://myokit.org/install/)
 - [Theano](http://deeplearning.net/software/theano/install.html)
