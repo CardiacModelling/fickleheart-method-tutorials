@@ -95,7 +95,8 @@ else:
     legend = ['']
 
 # Plot
-fig, axes = plt.subplots(1, 1, sharex=True, figsize=(8, 4))
+figsize = (5, 3) if which_cal != which_predict else (10, 3)
+fig, axes = plt.subplots(1, 1, sharex=True, figsize=figsize)
 is_predict = 'Prediction' if which_cal != which_predict else 'Fitted model'
 for i, (d, p) in enumerate(zip(data, prediction)):
     axes.plot(times, d, c=data_colour[i], alpha=0.8, label='Data' + legend[i])
@@ -105,7 +106,7 @@ axes.legend(loc=1)
 axes.set_ylabel('Voltage (mV)')
 axes.set_xlabel('Time (ms)')
 plt.subplots_adjust(hspace=0)
-plt.savefig('%s/%s.png' % (savedir, saveas),
+plt.savefig('%s/%s.png' % (savedir, saveas), dpi=200,
         bbox_inches='tight')
 plt.close()
 
