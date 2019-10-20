@@ -67,7 +67,7 @@ chains = pints.io.load_samples('%s/%s-chain.csv' % (loaddir, loadas), 3)
 chains = np.asarray(chains)
 
 n_iter = len(chains[0])
-chains = chains[:, int(0.5 * n_iter)::5, :]
+chains = chains[:, int(0.25 * n_iter):, :]
 
 # Protocol
 stim_list = {
@@ -98,8 +98,23 @@ renormalisation = np.append(renormalisation, 1)  # noise sigma
 # Just double checking, should all be the same
 renormalised_chain = chains[0] * renormalisation
 renormalised_x0 = x0 * renormalisation
+renormalised_true = np.append(np.ones(len(model_t.original)), np.NaN) \
+                    if which_model == 'tnnp-2004' else None
 _, axes = pints.plot.pairwise(renormalised_chain, kde=False,
-        ref_parameters=renormalised_x0)
+        ref_parameters=renormalised_true)
+for i in range(len(axes)):
+    for j in range(len(axes)):
+            if i == j:
+                    ymin_tv, ymax_tv = axes[i, j].get_ylim()
+                    axes[i, j].axvline(renormalised_x0[j],
+                        ls='--', c='r')
+            elif i < j:
+                continue
+            else:
+                    axes[i, j].axvline(renormalised_x0[j],
+                        ls='--', c='r')
+                    axes[i, j].axhline(renormalised_x0[i],
+                        ls='--', c='r')
 for i in range(len(axes)):
     axes[i, 0].set_ylabel(parameter_names[i], fontsize=32)
     axes[-1, i].set_xlabel(parameter_names[i], fontsize=32)
