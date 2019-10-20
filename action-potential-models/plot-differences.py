@@ -7,6 +7,7 @@ import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes, mark_inset
 
 import model as m
 import protocol as p
@@ -85,7 +86,7 @@ for i, c in enumerate(plot_parameters):
     # Change y-ticks
     yticks = ax.get_yticks()
     ax.set_yticks([yticks[1], yticks[-2]])
-    ax.set_ylabel(plot_currents[i][0], rotation=0, fontsize=16)
+    ax.set_ylabel(plot_currents[i][0] + '\n(A/F)', rotation=0, fontsize=16)
     ax.get_yaxis().set_label_coords(-0.15, 0.5)
     # Change frame and x-ticks
     if i not in [2, 4]:
@@ -108,6 +109,26 @@ for i, c in enumerate(plot_parameters):
         # frame off
         ax.spines['top'].set_visible(False)
         ax.spines['right'].set_visible(False)
+
+    # Zoom in for Ito
+    if c == 'ito.s':
+        axins = inset_axes(ax, width=2.5, height=0.8, loc='center right',
+                axes_kwargs={"facecolor" : "#f0f0f0"})
+        axins.plot(times, currents_tnnp[n], c='#2b8cbe', lw=2)
+        axins.fill_between(times, 0, currents_tnnp[n], color='#a6bddb',
+                alpha=0.5)
+        axins.plot(times, currents_fink[n], c='#2ca25f', lw=2)
+        axins.fill_between(times, 0, currents_fink[n], color='#a6dbbd',
+                alpha=0.5)
+        axins.set_xlim([45, 100])
+        axins.set_ylim([-0.2, 10.5])
+        #axins.yaxis.get_major_locator().set_params(nbins=3)
+        #axins.xaxis.get_major_locator().set_params(nbins=3)
+        axins.set_xticklabels([])
+        axins.set_yticklabels([])
+        pp, p1, p2 = mark_inset(ax, axins, loc1=1, loc2=4, fc="none", lw=0.75,
+                ec='k')
+        pp.set_fill(True); pp.set_facecolor("#f0f0f0")
 
 grid.tight_layout(fig, pad=1.0, rect=(0.01, 0.01, 1, 1))
 grid.update(wspace=0.175, hspace=0.1)
