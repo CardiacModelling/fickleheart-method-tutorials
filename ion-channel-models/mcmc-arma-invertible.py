@@ -48,7 +48,7 @@ info = importlib.import_module(info_id)
 
 data_dir = './data'
 
-savedir = './out/mcmc-' + info_id + '-arma_%s_%s' % (arma_p, arma_q)
+savedir = './out/mcmc-' + info_id + '-arma_%s_%s-inv' % (arma_p, arma_q)
 if not os.path.isdir(savedir):
     os.makedirs(savedir)
 
