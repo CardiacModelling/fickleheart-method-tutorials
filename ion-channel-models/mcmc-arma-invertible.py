@@ -13,7 +13,6 @@ import pints.plot
 import statsmodels.api as sm
 #from statsmodels.tsa.arima_process import arma2ma
 import joblib
-from statsmodels.tsa.tsatools import _ar_transparams, _ar_invtransparams, _ma_transparams, _ma_invtransparams
 from scipy.stats import norm as scipy_stats_norm
 
 import model as m
@@ -112,7 +111,7 @@ for i in fit_idx:
     transform_model_x0_list.append(transform_from_model_param(p))
 
 # Fit an armax model to get ballpark estmates of starting arma parameters
-transparams = False
+transparams = True
 debug = False
 cmaes_params = transform_model_x0_list[0]
 exog_current = model.simulate(cmaes_params, times)[:,None]
@@ -136,7 +135,7 @@ loglikelihood = DiscrepancyLogLikelihood(problem, armax_result, transparams=tran
 logmodelprior = LogPrior[info_id](transform_to_model_param,
         transform_from_model_param)
 # Priors for discrepancy; NOTE: Worth checking out more wider/narrower priors
-logarmaprior = ArmaNormalCentredLogPrior(armax_result, 0.25)
+logarmaprior = ArmaNormalLogPrior(armax_result, 0.25)
 # Compose all priors
 logprior = pints.ComposedLogPrior(logmodelprior, logarmaprior)
 logposterior = pints.LogPosterior(loglikelihood, logprior)
@@ -146,8 +145,8 @@ priorparams = np.copy(info.base_param)
 transform_priorparams = transform_from_model_param(priorparams)
 # Stack non-model parameters together
 #init_arma = armax_result.params[armax_result.k_exog:]
-init_arma_ar = _ar_transparams(armax_result.arparams.copy())
-init_arma_ma = _ma_transparams(armax_result.maparams.copy())
+init_arma_ar = armax_result.arparams.copy()
+init_arma_ma = armax_result.maparams.copy()
 init_arma = np.append(init_arma_ar, init_arma_ma)
 priorparams = np.append(priorparams, init_arma)
 transform_priorparams = np.append(transform_priorparams, init_arma)

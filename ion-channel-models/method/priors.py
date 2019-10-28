@@ -357,6 +357,7 @@ class InverseGammaLogPrior(pints.LogPrior):
 #
 # Some useful for ARMA
 #
+'''
 class ArmaLogPrior(pints.LogPrior):
     """
     Log prior for ARMA model.
@@ -364,6 +365,7 @@ class ArmaLogPrior(pints.LogPrior):
     def __init__(self, armax_result, left, right, scale):
         super(ArmaLogPrior, self).__init__()
         self._location  = armax_result.params[1:]
+        #self._location  = np.zeros(len(armax_result.params) - 1)
         self._scale = float(scale)
         self.a = float(left)
         self.b = float(right)
@@ -379,4 +381,40 @@ class ArmaLogPrior(pints.LogPrior):
     def sample(self, n=1):
         return np.array(stats.truncnorm(self.a, self.b, self._location,
                 self._scale).rvs(n))
+'''
 
+
+class ArmaNormalCentredLogPrior(pints.LogPrior):
+    def __init__(self, armax_result, scale):
+        super(ArmaNormalCentredLogPrior, self).__init__()
+        self._location  = np.zeros(len(armax_result.params) - 1)
+        self._scale = float(scale)
+        self.n_params = len(armax_result.params) - 1
+
+    def n_parameters(self):
+        return self.n_params
+
+    def __call__(self, x):
+        return np.sum(stats.norm.logpdf(x, self._location, self._scale))
+
+    def sample(self, n=1):
+        return np.array(stats.norm(self._location, self._scale).rvs(n))
+
+
+class ArmaNormalLogPrior(pints.LogPrior):
+    def __init__(self, armax_result, scale):
+        super(ArmaNormalLogPrior, self).__init__()
+        self._location = armax_result.params[1:]
+        self._scale = float(scale)
+        self.n_params = len(armax_result.params) - 1
+
+    def n_parameters(self):
+        return self.n_params
+
+    def __call__(self, x):
+        return np.sum(stats.norm.logpdf(x, self._location,
+                    abs(self._location) * self._scale))
+
+    def sample(self, n=1):
+        return np.array(stats.norm(self._location,
+                    abs(self._location) * self._scale).rvs(n))

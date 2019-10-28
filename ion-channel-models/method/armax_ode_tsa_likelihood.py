@@ -8,7 +8,8 @@ class DiscrepancyLogLikelihood(pints.ProblemLogLikelihood):
     This class defines a custom loglikelihood which implements a
     discrepancy model where the noise follows an ARMA(p,q) process
     """
-    def __init__(self, problem, armax_result_obj, temperature=None):
+    def __init__(self, problem, armax_result_obj, transparams=False,
+            temperature=None):
         super(DiscrepancyLogLikelihood, self).__init__(problem)
 
         self._no = problem.n_outputs()
@@ -18,6 +19,7 @@ class DiscrepancyLogLikelihood(pints.ProblemLogLikelihood):
         self._n_parameters = self._np + self._nds
         self._nt = problem.n_times() 
         self._temperature = temperature
+        self._transparams = transparams
 
     def __call__(self, x):
         armax_params = x[-self._nds:]
@@ -25,11 +27,13 @@ class DiscrepancyLogLikelihood(pints.ProblemLogLikelihood):
         model_params = x[:-self._nds]
         ion_current = self._problem.evaluate(model_params) 
 
-        self._armax_result.model.transparams = True
+        self._armax_result.model.transparams = self._transparams
         self._armax_result.model.exog = ion_current[:,None]
 
         try:
             ll = self._armax_result.model.loglike_kalman(armax_params)
+            assert(np.sum(self._armax_result.model.exog) \
+                    == np.sum(ion_current))
         except:
             import sys
             print(sys.exc_info()[0], "occured.")  # not sure what exception...
