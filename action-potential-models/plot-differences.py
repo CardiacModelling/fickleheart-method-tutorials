@@ -133,5 +133,5 @@ for i, c in enumerate(plot_parameters):
 grid.tight_layout(fig, pad=1.0, rect=(0.01, 0.01, 1, 1))
 grid.update(wspace=0.175, hspace=0.1)
 plt.savefig('fig/model-differences.png', bbox_inch='tight', pad_inches=0)
-#plt.savefig('fig/model-differences.pdf', format='pdf', bbox_inch='tight',
-#        pad_inches=0, transparent=True)
+plt.savefig('fig/model-differences.pdf', format='pdf', bbox_inch='tight',
+        pad_inches=0)
