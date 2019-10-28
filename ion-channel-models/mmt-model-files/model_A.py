@@ -10,6 +10,18 @@ model_file = './mmt-model-files/model-A.mmt'
 # Assume only the sum of all current can be observed if multiple currents
 current_list = ['ikr.IKr']
 
+parameters_nice = [
+    r'$g$',
+    r'$p_{1}$',
+    r'$p_{2}$',
+    r'$p_{3}$',
+    r'$p_{4}$',
+    r'$p_{5}$',
+    r'$p_{6}$',
+    r'$p_{7}$',
+    r'$p_{8}$',
+    ]
+
 # myokit variable names
 # All the parameters to be inferred
 parameters = [
