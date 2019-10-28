@@ -106,8 +106,8 @@ if which_predict == 'hergblock':
     axes.legend(loc=4)
 else:
     axes.legend(loc=1)
-axes.set_ylabel('Voltage (mV)', fontsize=14)
-axes.set_xlabel('Time (ms)', fontsize=14)
+axes.set_ylabel('Voltage (mV)', fontsize=12)
+axes.set_xlabel('Time (ms)', fontsize=12)
 plt.subplots_adjust(hspace=0)
 plt.savefig('%s/%s.pdf' % (savedir, saveas), format='pdf', bbox_inches='tight')
 plt.savefig('%s/%s.png' % (savedir, saveas), dpi=200, bbox_inches='tight')
