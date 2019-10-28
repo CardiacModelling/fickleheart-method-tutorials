@@ -102,11 +102,14 @@ for i, (d, p) in enumerate(zip(data, prediction)):
     axes.plot(times, d, c=data_colour[i], alpha=0.8, label='Data' + legend[i])
     axes.plot(times, p, c=model_colour[i], ls='--', lw=1.5,
             label=is_predict + legend[i])
-axes.legend(loc=1)
-axes.set_ylabel('Voltage (mV)')
-axes.set_xlabel('Time (ms)')
+if which_predict == 'hergblock':
+    axes.legend(loc=4)
+else:
+    axes.legend(loc=1)
+axes.set_ylabel('Voltage (mV)', fontsize=14)
+axes.set_xlabel('Time (ms)', fontsize=14)
 plt.subplots_adjust(hspace=0)
-plt.savefig('%s/%s.png' % (savedir, saveas), dpi=200,
-        bbox_inches='tight')
+plt.savefig('%s/%s.pdf' % (savedir, saveas), format='pdf', bbox_inches='tight')
+plt.savefig('%s/%s.png' % (savedir, saveas), dpi=200, bbox_inches='tight')
 plt.close()
 
