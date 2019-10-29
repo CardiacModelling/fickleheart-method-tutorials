@@ -110,6 +110,53 @@ def _create_theano_likelihood_graph(data, t, ind_t, n_time, n_inducing_time,
             on_unused_input='ignore')
 
 
+def _create_theano_conditional_graph(data, t, ind_t, n_time, n_inducing_time,
+        t_new, approx='FITC'):
+    rho = tt.dscalar('rho')
+    ker_sigma = tt.dscalar('ker_sigma')
+    sigma = tt.dscalar('sigma')
+    time = theano.tensor.as_tensor_variable(t)
+    time_new = theano.tensor.as_tensor_variable(t_new)
+    inducing_time = theano.tensor.as_tensor_variable(ind_t)
+    y = theano.tensor.as_tensor_variable(data)
+    current = tt.dvector('current')
+    current_new = tt.dvector('current_new')
+
+    cov_func = RbfKernel(rho, ker_sigma)
+
+    sigma2 = tt.square(sigma)
+    Kuu = cov_func(inducing_time)
+    Kuf = cov_func(inducing_time, time)
+    Luu = cholesky(stabilize(Kuu))
+    A = solve_lower(Luu, Kuf)
+    Qffd = tt.sum(A * A, 0)
+    if approx == "FITC":
+        Kffd = cov_func(time, diag=True)
+        Lamd = tt.clip(Kffd - Qffd, 0.0, np.inf) + sigma2
+    else:  # VFE or DTC
+        Lamd = tt.ones_like(Qffd) * sigma2
+    A_l = A / Lamd
+    L_B = cholesky(tt.eye(inducing_time.shape[0]) \
+            + tt.dot(A_l, tt.transpose(A)))
+    r = y - current
+    r_l = r / Lamd
+    c = solve_lower(L_B, tt.dot(A, r_l))
+    Kus = cov_func(inducing_time, time_new)
+    As = solve_lower(Luu, Kus)
+    mu = current_new \
+            + tt.dot(tt.transpose(As), solve_upper(tt.transpose(L_B), c))
+    C = solve_lower(L_B, As)
+
+    Kss = cov_func(t_new, diag=True)
+    var = Kss - tt.sum(tt.square(As), 0) + tt.sum(tt.square(C), 0)
+    var += sigma2
+
+    return [theano.function([current, current_new, rho, ker_sigma, sigma], mu,
+                            on_unused_input='ignore'),
+            theano.function([current, current_new, rho, ker_sigma, sigma], var,
+                            on_unused_input='ignore')]
+
+
 class DiscrepancyLogLikelihood(pints.ProblemLogLikelihood):
     """
     This class defines a custom loglikelihood which implements a
