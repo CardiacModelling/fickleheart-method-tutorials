@@ -49,10 +49,10 @@ class RbfKernel(GpCovariance):
     RBF Kernal
     """
     def __call__(self, X, Xs=None, diag=False):
-        if diag==True:
-            return self.sf2*tt.alloc(1.0, X.shape[0])
+        if diag:
+            return self.sf2 * tt.alloc(1.0, X.shape[0])
         else:
-            return self.sf2*tt.exp(-0.5 * self.square_dist(X, Xs))
+            return self.sf2 * tt.exp(-0.5 * self.square_dist(X, Xs))
 
 
 def _create_theano_likelihood_graph(data, t, ind_t, n_time, n_inducing_time,
