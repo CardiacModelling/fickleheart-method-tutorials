@@ -23,9 +23,11 @@ Posterior predictive with (sparse) GP discrepancy model.
 model_list = ['A', 'B', 'C']
 predict_list = ['sinewave', 'staircase', 'activation', 'ap']
 
+np.random.seed(101)  # fix seed for prediction
+
 try:
     which_model = sys.argv[1] 
-    which_predict = sys.argv[4]
+    which_predict = sys.argv[2]
 except:
     print('Usage: python %s [str:which_model]' % os.path.basename(__file__)
             + ' [str:which_predict]')
@@ -84,6 +86,17 @@ data = data[:, 1]
 inducing_times_train = times_train[::1000]
 
 # Load model
+model_train = m.Model(info.model_file,
+        variables=info.parameters,
+        current_readout=info.current_list,
+        set_ion=info.ions_conc,
+        transform=None,
+        temperature=273.15 + info.temperature,  # K
+        )
+# Update protocol to training protocol
+model_train.set_fixed_form_voltage_protocol(protocol_train,
+        protocol_train_times)
+
 model = m.Model(info.model_file,
         variables=info.parameters,
         current_readout=info.current_list,
@@ -91,6 +104,8 @@ model = m.Model(info.model_file,
         transform=None,
         temperature=273.15 + info.temperature,  # K
         )
+# Update protocol to predicting protocol
+model.set_fixed_form_voltage_protocol(protocol, protocol_times)
 
 # Load MCMC results
 ppc_samples = pints.io.load_samples('%s/%s-chain_0.csv' % (loaddir, loadas))
@@ -131,14 +146,11 @@ for ind in np.random.choice(range(0, ppc_size), 100, replace=False):
     # Expecting these GP parameters are untransformed
     _sigma, _rho, _ker_sigma = ppc_samples[ind,-nds:]
 
-    # Update protocol to training protocol
-    model.set_fixed_form_voltage_protocol(protocol_train, protocol_train_times)
-    current_training_protocol = model.simulate(ode_params, times_train)
-
-    # Update protocol to predicting protocol
-    model.set_fixed_form_voltage_protocol(protocol, protocol_times)  #TODO
+    # Simulate
+    current_training_protocol = model_train.simulate(ode_params, times_train)
     current_valid_protocol = model.simulate(ode_params, times)
 
+    # Compute mean and var
     ppc_mean = ppc_sampler_mean(current_training_protocol,
             current_valid_protocol, _rho, _ker_sigma, _sigma)
     ppc_var = ppc_sampler_var(current_training_protocol,
