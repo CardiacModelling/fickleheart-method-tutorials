@@ -110,8 +110,7 @@ def _create_theano_likelihood_graph(data, t, ind_t, n_time, n_inducing_time,
             on_unused_input='ignore')
 
 
-def _create_theano_conditional_graph(data, t, ind_t, n_time, n_inducing_time,
-        t_new, approx='FITC'):
+def _create_theano_conditional_graph(data, t, ind_t, t_new, approx='FITC'):
     rho = tt.dscalar('rho')
     ker_sigma = tt.dscalar('ker_sigma')
     sigma = tt.dscalar('sigma')
@@ -147,7 +146,7 @@ def _create_theano_conditional_graph(data, t, ind_t, n_time, n_inducing_time,
             + tt.dot(tt.transpose(As), solve_upper(tt.transpose(L_B), c))
     C = solve_lower(L_B, As)
 
-    Kss = cov_func(t_new, diag=True)
+    Kss = cov_func(time_new, diag=True)
     var = Kss - tt.sum(tt.square(As), 0) + tt.sum(tt.square(C), 0)
     var += sigma2
 
