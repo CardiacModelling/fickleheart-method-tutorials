@@ -273,6 +273,7 @@ class DiscrepancyLogLikelihood(pints.ProblemLogLikelihood):
         self._np = problem.n_parameters()
         self._nt = problem.n_times() 
         self._inducing_times = inducing_times
+        self._voltage = voltage
         self._inducing_voltage = inducing_voltage
         self._nu = len(inducing_times)
         self._downsample = downsample if downsample is not None else 1
