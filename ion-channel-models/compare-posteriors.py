@@ -15,8 +15,9 @@ Posterior distributions with different discrepancy models.
 """
 
 model_list = ['A', 'B', 'C']
-discrepancy_list = ['', '-gp']#, '-arma_2_2']
-discrepancy_names = ['iid noise', 'GP']#, 'ARMAX(2, 2)']
+discrepancy_list = ['', '-gp', '-arma_2_2', '-arma_2_2-inv']
+discrepancy_names = ['iid noise', 'GP', 'ARMAX(2, 2)', 'invertible ARMAX(2, 2)']
+chain_to_use = [2, 2, 2, 1]
 
 try:
     which_model = sys.argv[1] 
@@ -44,10 +45,12 @@ saveas = 'compare-' + info_id + '-sinewave-posteriors'
 all_samples = []
 lastniter = 25000
 thinning = 5
-for d in discrepancy_list:
+for i, d in enumerate(discrepancy_list):
     loaddir = './out/mcmc-' + info_id + d
     loadas = info_id + '-sinewave'
-    samples = pints.io.load_samples('%s/%s-chain_2.csv' % (loaddir, loadas))
+    loadchain = chain_to_use[i]
+    samples = pints.io.load_samples('%s/%s-chain_%s.csv'
+            % (loaddir, loadas, loadchain))
     # burn in and thinning
     samples = samples[-lastniter::thinning, :]
     all_samples.append(samples)
