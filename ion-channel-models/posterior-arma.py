@@ -23,6 +23,8 @@ Posterior predictive with ARMA noise model.
 model_list = ['A', 'B', 'C']
 predict_list = ['sinewave', 'staircase', 'activation', 'ap']
 
+np.random.seed(101)  # fix seed for prediction
+
 try:
     which_model = sys.argv[1] 
     arma_p = int(sys.argv[2])
@@ -52,6 +54,8 @@ data_dir = './data'
 savedir = './fig/mcmc-' + info_id + '-arma_%s_%s' % (arma_p, arma_q)
 if not os.path.isdir(savedir):
     os.makedirs(savedir)
+if not os.path.isdir(savedir + '/raw'):
+    os.makedirs(savedir + '/raw')
 
 data_file_name = 'data-%s.csv' % which_predict
 print('Predicting ', data_file_name)
@@ -113,6 +117,9 @@ n_arama = len(armax_result.params[armax_result.k_exog:])
 # Update protocol to predicting protocol
 model.set_fixed_form_voltage_protocol(protocol, protocol_times)
 
+# Simulate voltage
+voltage = model.voltage(times)
+
 # Load MCMC results
 ppc_samples = pints.io.load_samples('%s/%s-chain_0.csv' % (loaddir, loadas))
 
@@ -128,10 +135,13 @@ ppc_samples = pints.io.load_samples('%s/%s-chain_0.csv' % (loaddir, loadas))
 ppc_size = np.size(ppc_samples, axis=0)
 armax_mean = []
 armax_sd = []
+model_mean = []
+armax_only_mean = []
 
 for ind in np.random.choice(range(0, ppc_size), 100, replace=False):
     ode_params = np.copy(ppc_samples[ind, :-n_arama])
     ode_sol = model.simulate(ode_params, times)
+
     armax_params = np.append(1.0, ppc_samples[ind, -n_arama:])
     armax_result.params = armax_params
     armax_result.arparams = armax_params[armax_result.k_exog:\
@@ -140,27 +150,92 @@ for ind in np.random.choice(range(0, ppc_size), 100, replace=False):
     armax_result.model.exog = exog_current  # 'old sim.' from training prtocol
     mean, sd, _ = armax_result.forecast(steps=len(times), exog=ode_sol)
     armax_result.model.exog = ode_sol[:, None]
+
     armax_mean.append(mean)
     armax_sd.append(sd)
+    model_mean.append(ode_sol)
+    armax_only_mean.append(mean - ode_sol)
 
-armax_mean = np.array(armax_mean)
-armax_sd = np.array(armax_sd)
-ppc_mean = np.mean(armax_mean, axis=0)
-var1 = np.mean(armax_sd**2, axis=0)
-var2 = np.mean(armax_mean**2, axis=0)
-var3 = (np.mean(armax_mean, axis=0))**2
-ppc_sd = np.sqrt(var1 + var2 - var3)
-
-plt.figure(figsize=(8, 6))
-plt.plot(times, data, label='Data')
-plt.plot(times, ppc_mean, label='Mean')
 n_sd = scipy_stats_norm.ppf(1. - .05 / 2.)
-plt.plot(times, ppc_mean + n_sd * ppc_sd, '-', color='blue', lw=0.5,
+
+# Model + ARMAX
+ppc_mean = np.mean(armax_mean, axis=0)
+var1 = np.mean(np.power(armax_sd, 2), axis=0)
+var2_1 = np.mean(np.power(armax_mean, 2), axis=0)
+var2_2 = np.power(np.mean(armax_mean, axis=0), 2)
+ppc_sd = np.sqrt(var1 + (var2_1 - var2_2))
+
+fig, axes = plt.subplots(2, 1, sharex=True, figsize=(8, 6),
+        gridspec_kw={'height_ratios': [1, 2]})
+axes[0].plot(times, voltage, c='#7f7f7f')
+axes[0].set_ylabel('Voltage (mV)')
+axes[1].plot(times, data, alpha=0.5, label='data')
+axes[1].plot(times, ppc_mean, label='Mean')
+axes[1].plot(times, ppc_mean + n_sd * ppc_sd, '-', color='blue', lw=0.5,
         label='95% C.I.')
-plt.plot(times, ppc_mean - n_sd * ppc_sd, '-', color='blue', lw=0.5)
-plt.legend()
-plt.xlabel('Time (ms)')
-plt.ylabel('Current (pA)')
-plt.savefig('%s/%s-pp.png' % (savedir, saveas))
+axes[1].plot(times, ppc_mean - n_sd * ppc_sd, '-', color='blue', lw=0.5)
+axes[1].legend()
+axes[1].set_ylabel('Current (pA)')
+axes[1].set_xlabel('Time (ms)')
+plt.subplots_adjust(hspace=0)
+plt.savefig('%s/%s-pp.png' % (savedir, saveas), dpi=200,
+        bbox_inches='tight')
 plt.close()
 
+# Model only
+model_ppc_mean = np.mean(model_mean, axis=0)
+var1_1 = np.mean(np.power(model_mean, 2), axis=0)
+var1_2 = np.power(np.mean(model_mean, axis=0), 2)
+model_ppc_sd = np.sqrt(var1_1 - var1_2)
+
+fig, axes = plt.subplots(2, 1, sharex=True, figsize=(8, 6),
+        gridspec_kw={'height_ratios': [1, 2]})
+axes[0].plot(times, voltage, c='#7f7f7f')
+axes[0].set_ylabel('Voltage (mV)')
+axes[1].plot(times, data, alpha=0.5, label='data')
+axes[1].plot(times, model_ppc_mean, label='Mean')
+axes[1].plot(times, model_ppc_mean + n_sd * model_ppc_sd, '-', color='blue',
+        lw=0.5, label='95% C.I.')
+axes[1].plot(times, model_ppc_mean - n_sd * model_ppc_sd, '-', color='blue',
+        lw=0.5)
+axes[1].legend()
+axes[1].set_ylabel('Current (pA)')
+axes[1].set_xlabel('Time (ms)')
+plt.subplots_adjust(hspace=0)
+plt.savefig('%s/%s-pp-model-only.png' % (savedir, saveas), dpi=200,
+        bbox_inches='tight')
+plt.close()
+
+# ARMAX only
+armax_ppc_mean = np.mean(armax_only_mean, axis=0)
+var1 = np.mean(np.power(armax_sd, 2), axis=0)
+var2_1 = np.mean(np.power(armax_only_mean, 2), axis=0)
+var2_2 = np.power(np.mean(armax_only_mean, axis=0), 2)
+armax_ppc_sd = np.sqrt(var1 + (var2_1 - var2_2))
+
+fig, axes = plt.subplots(2, 1, sharex=True, figsize=(8, 6),
+        gridspec_kw={'height_ratios': [1, 2]})
+axes[0].plot(times, voltage, c='#7f7f7f')
+axes[0].set_ylabel('Voltage (mV)')
+axes[1].plot(times, data, alpha=0.5, label='data')
+axes[1].plot(times, armax_ppc_mean, label='Mean')
+axes[1].plot(times, armax_ppc_mean + n_sd * armax_ppc_sd, '-', color='blue',
+        lw=0.5, label='95% C.I.')
+axes[1].plot(times, armax_ppc_mean - n_sd * armax_ppc_sd, '-', color='blue',
+        lw=0.5)
+axes[1].legend()
+axes[1].set_ylabel('Current (pA)')
+axes[1].set_xlabel('Time (ms)')
+plt.subplots_adjust(hspace=0)
+plt.savefig('%s/%s-pp-armax-only.png' % (savedir, saveas), dpi=200,
+        bbox_inches='tight')
+plt.close()
+
+# Save as text
+np.savetxt('%s/raw/%s-pp-time.txt' % (savedir, saveas), times)
+np.savetxt('%s/raw/%s-pp-armax-mean.txt' % (savedir, saveas), ppc_mean)
+np.savetxt('%s/raw/%s-pp-armax-sd.txt' % (savedir, saveas), ppc_sd)
+np.savetxt('%s/raw/%s-pp-only-model-mean.txt' % (savedir, saveas), model_ppc_mean)
+np.savetxt('%s/raw/%s-pp-only-model-sd.txt' % (savedir, saveas), model_ppc_sd)
+np.savetxt('%s/raw/%s-pp-only-armax-mean.txt' % (savedir, saveas), armax_ppc_mean)
+np.savetxt('%s/raw/%s-pp-only-armax-sd.txt' % (savedir, saveas), armax_ppc_sd)

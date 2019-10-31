@@ -52,6 +52,8 @@ data_dir = './data'
 savedir = './fig/mcmc-' + info_id + '-gp'
 if not os.path.isdir(savedir):
     os.makedirs(savedir)
+if not os.path.isdir(savedir + '/raw'):
+    os.makedirs(savedir + '/raw')
 
 data_file_name = 'data-%s.csv' % which_predict
 print('Predicting ', data_file_name)
@@ -107,6 +109,9 @@ model = m.Model(info.model_file,
 # Update protocol to predicting protocol
 model.set_fixed_form_voltage_protocol(protocol, protocol_times)
 
+# Simulate voltage
+voltage = model.voltage(times)
+
 # Load MCMC results
 ppc_samples = pints.io.load_samples('%s/%s-chain_0.csv' % (loaddir, loadas))
 
@@ -125,8 +130,10 @@ ppc_samples = pints.io.load_samples('%s/%s-chain_0.csv' % (loaddir, loadas))
 # same Variance identity for ARMAX to integrate out (gp_params, ode_params).
 # -----------------------------------------------------------------------------
 ppc_size = np.size(ppc_samples, axis=0)
-gp_ppc_mean =[]
+gp_ppc_mean = []
 gp_ppc_var = []
+model_ppc_mean = []
+gp_only_ppc_mean = []
 
 training_data = data_train.reshape((-1,))
 t_training_protocol = times_train.reshape((-1, 1)) 
@@ -152,28 +159,92 @@ for ind in np.random.choice(range(0, ppc_size), 100, replace=False):
             current_valid_protocol, _rho, _ker_sigma, _sigma)
     ppc_var = ppc_sampler_var(current_training_protocol,
             current_valid_protocol, _rho, _ker_sigma, _sigma)
+
     gp_ppc_mean.append(ppc_mean)
     gp_ppc_var.append(ppc_var)
-
-gp_ppc_mean = np.array(gp_ppc_mean)
-gp_ppc_var = np.array(gp_ppc_var)
-ppc_mean = np.mean(gp_ppc_mean, axis=0)
-var1 = np.mean(gp_ppc_var, axis=0)
-var2 = np.mean(np.power(gp_ppc_mean, 2), axis=0)
-var3 = np.power(np.mean(gp_ppc_mean, axis=0), 2)
-ppc_sd = np.sqrt(var1 + var2 - var3)
-
-plt.figure(figsize=(8, 6))
-plt.plot(times, data, label='Data')
-plt.plot(times, ppc_mean, label='Mean')
+    model_ppc_mean.append(current_valid_protocol)
+    gp_only_ppc_mean.append(ppc_mean - current_valid_protocol)
 
 n_sd = scipy_stats_norm.ppf(1. - .05 / 2.)
-plt.plot(times, ppc_mean + n_sd * ppc_sd, '-', color='blue', lw=0.5,
-        label='95% C.I.')
-plt.plot(times, ppc_mean - n_sd * ppc_sd, '-', color='blue', lw=0.5)
 
-plt.legend()
-plt.xlabel('Time (ms)')
-plt.ylabel('Current (pA)')
-plt.savefig('%s/%s-pp.png' % (savedir, saveas))
+# Model + GP
+ppc_mean = np.mean(gp_ppc_mean, axis=0)
+var1 = np.mean(gp_ppc_var, axis=0)
+var2_1 = np.mean(np.power(gp_ppc_mean, 2), axis=0)
+var2_2 = np.power(np.mean(gp_ppc_mean, axis=0), 2)
+ppc_sd = np.sqrt(var1 + var2_1 - var2_2)
+
+fig, axes = plt.subplots(2, 1, sharex=True, figsize=(8, 6),
+        gridspec_kw={'height_ratios': [1, 2]})
+axes[0].plot(times, voltage, c='#7f7f7f')
+axes[0].set_ylabel('Voltage (mV)')
+axes[1].plot(times, data, alpha=0.5, label='data')
+axes[1].plot(times, ppc_mean, label='Mean')
+axes[1].plot(times, ppc_mean + n_sd * ppc_sd, '-', color='blue', lw=0.5,
+        label='95% C.I.')
+axes[1].plot(times, ppc_mean - n_sd * ppc_sd, '-', color='blue', lw=0.5)
+axes[1].legend()
+axes[1].set_ylabel('Current (pA)')
+axes[1].set_xlabel('Time (ms)')
+plt.subplots_adjust(hspace=0)
+plt.savefig('%s/%s-pp.png' % (savedir, saveas), dpi=200,
+        bbox_inches='tight')
 plt.close()
+
+# Model only
+model_mean = np.mean(model_ppc_mean, axis=0)
+var1_1 = np.mean(np.power(model_ppc_mean, 2), axis=0)
+var1_2 = np.power(np.mean(model_ppc_mean, axis=0), 2)
+model_sd = np.sqrt(var1_1 - var1_2)
+
+fig, axes = plt.subplots(2, 1, sharex=True, figsize=(8, 6),
+        gridspec_kw={'height_ratios': [1, 2]})
+axes[0].plot(times, voltage, c='#7f7f7f')
+axes[0].set_ylabel('Voltage (mV)')
+axes[1].plot(times, data, alpha=0.5, label='data')
+axes[1].plot(times, model_mean, label='Mean')
+axes[1].plot(times, model_mean + n_sd * model_sd, '-', color='blue', lw=0.5,
+        label='95% C.I.')
+axes[1].plot(times, model_mean - n_sd * model_sd, '-', color='blue', lw=0.5)
+axes[1].legend()
+axes[1].set_ylabel('Current (pA)')
+axes[1].set_xlabel('Time (ms)')
+plt.subplots_adjust(hspace=0)
+plt.savefig('%s/%s-pp-model-only.png' % (savedir, saveas), dpi=200,
+        bbox_inches='tight')
+plt.close()
+
+# GP only
+gp_only_mean = np.mean(gp_only_ppc_mean, axis=0)
+var1 = np.mean(gp_ppc_var, axis=0)
+var2_1 = np.mean(np.power(gp_only_ppc_mean, 2), axis=0)
+var2_2 = np.power(np.mean(gp_only_ppc_mean, axis=0), 2)
+gp_only_sd = np.sqrt(var1 + var2_1 - var2_2)
+
+fig, axes = plt.subplots(2, 1, sharex=True, figsize=(8, 6),
+        gridspec_kw={'height_ratios': [1, 2]})
+axes[0].plot(times, voltage, c='#7f7f7f')
+axes[0].set_ylabel('Voltage (mV)')
+axes[1].plot(times, data, alpha=0.5, label='data')
+axes[1].plot(times, gp_only_mean, label='Mean')
+n_sd = scipy_stats_norm.ppf(1. - .05 / 2.)
+axes[1].plot(times, gp_only_mean + n_sd * gp_only_sd, '-', color='blue',
+        lw=0.5, label='95% C.I.')
+axes[1].plot(times, gp_only_mean - n_sd * gp_only_sd, '-', color='blue',
+        lw=0.5)
+axes[1].legend()
+axes[1].set_ylabel('Current (pA)')
+axes[1].set_xlabel('Time (ms)')
+plt.subplots_adjust(hspace=0)
+plt.savefig('%s/%s-pp-gp-only.png' % (savedir, saveas), dpi=200,
+        bbox_inches='tight')
+plt.close()
+
+# Save as text
+np.savetxt('%s/raw/%s-pp-time.txt' % (savedir, saveas), times)
+np.savetxt('%s/raw/%s-pp-gp-mean.txt' % (savedir, saveas), ppc_mean)
+np.savetxt('%s/raw/%s-pp-gp-sd.txt' % (savedir, saveas), ppc_sd)
+np.savetxt('%s/raw/%s-pp-only-model-mean.txt' % (savedir, saveas), model_mean)
+np.savetxt('%s/raw/%s-pp-only-model-sd.txt' % (savedir, saveas), model_sd)
+np.savetxt('%s/raw/%s-pp-only-gp-mean.txt' % (savedir, saveas), gp_only_mean)
+np.savetxt('%s/raw/%s-pp-only-gp-sd.txt' % (savedir, saveas), gp_only_sd)
