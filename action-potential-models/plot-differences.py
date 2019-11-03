@@ -60,7 +60,7 @@ grid = plt.GridSpec(4, 2, hspace=0.1, wspace=0.225)
 for i in range(2):
     vm_ax = fig.add_subplot(grid[0, i])
     vm_ax.plot(times, voltage, 'k', lw=2)
-    vm_ax.set_ylabel(r'$\mathregular{V_m}$ (mV)', fontsize=14)
+    vm_ax.set_ylabel(r'$\mathregular{V_m}$ (mV)', fontsize=16)
     vm_ax.tick_params(axis='x',
                    which='both',
                    bottom=False,
@@ -79,10 +79,12 @@ for i, c in enumerate(plot_parameters):
     n = c[:-2]
     gx, gy = i % 3, int(i // 3)
     ax = fig.add_subplot(grid[gx + 1, gy])
-    ax.plot(times, currents_tnnp[n], c='#2b8cbe', lw=2)
+    ax.plot(times, currents_tnnp[n], c='#2b8cbe', lw=2, label='Model T')
     ax.fill_between(times, 0, currents_tnnp[n], color='#a6bddb', alpha=0.5)
-    ax.plot(times, currents_fink[n], c='#2ca25f', lw=2)
+    ax.plot(times, currents_fink[n], c='#2ca25f', lw=2, label='Model F')
     ax.fill_between(times, 0, currents_fink[n], color='#a6dbbd', alpha=0.5)
+    if i == 0:
+        ax.legend(bbox_to_anchor=(0.6, 0.9), frameon=False, fontsize=13)
     # Change y-ticks
     yticks = ax.get_yticks()
     ax.set_yticks([yticks[1], yticks[-2]])
@@ -105,7 +107,7 @@ for i, c in enumerate(plot_parameters):
                        which='major',
                        size=8,
                        labelsize=14)
-        ax.set_xlabel(r'Time (ms)', fontsize=14)
+        ax.set_xlabel(r'Time (ms)', fontsize=16)
         # frame off
         ax.spines['top'].set_visible(False)
         ax.spines['right'].set_visible(False)
