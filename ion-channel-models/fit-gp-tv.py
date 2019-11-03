@@ -107,7 +107,7 @@ lognoiseprior = HalfNormalLogPrior(sd=25, transform=True)
 logrhoprior_t = InverseGammaLogPrior(alpha=5, beta=5, transform=True)
 logrhoprior_v = InverseGammaLogPrior(alpha=5, beta=5, transform=True)
 logrhoprior = pints.ComposedLogPrior(logrhoprior_t, logrhoprior_v)
-logkersdprior = InverseGammaLogPrior(alpha=5, beta=5, transform=True)
+logkersdprior = InverseGammaLogPrior(alpha=1, beta=10, transform=True)
 # Compose all priors
 logprior = pints.ComposedLogPrior(logmodelprior, lognoiseprior, logrhoprior,
         logkersdprior)

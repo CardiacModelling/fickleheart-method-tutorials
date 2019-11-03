@@ -24,9 +24,9 @@ class GpCovariance(object):
     """
     GP covariance
     """
-    def __init__(self, lengthscale, kernelvariance):
+    def __init__(self, lengthscale, kernelsigma):
         self.ls = lengthscale
-        self.sf2 = kernelvariance
+        self.sf2 = tt.square(kernelsigma)
 
     def square_dist(self, X, Xs):
         X = tt.mul(X, 1.0 / self.ls)
@@ -281,11 +281,11 @@ class DiscrepancyLogLikelihood(pints.ProblemLogLikelihood):
         data = self._values[::self._downsample].reshape((-1,))
         t = self._times[::self._downsample].reshape((-1, 1)) 
         ind_t = self._inducing_times.reshape((-1, 1))
-        v = self._voltage[::self._downsample].reshape((-1, 1))
-        ind_v = self._inducing_voltage.reshape((-1, 1))
 
         if self._voltage is not None:
             self._nds = 4
+            v = self._voltage[::self._downsample].reshape((-1, 1))
+            ind_v = self._inducing_voltage.reshape((-1, 1))
             x = np.concatenate((t, v), axis=1)
             ind_x = np.concatenate((ind_t, ind_v), axis=1)
             self._loglikelihood = _create_theano_likelihood_graph_voltage(data,
