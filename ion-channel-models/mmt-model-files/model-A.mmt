@@ -11,7 +11,8 @@ ikr.active = 1
 
 [ikr]
 use membrane.V
-IKr = g * open * active * (V - rev.EK)
+IKr = g * O * (V - rev.EK)
+O = open * active
 dot(open) = (inf - open) / tau
     inf = k1 * tau
     tau = 1 / (k1 + k2)

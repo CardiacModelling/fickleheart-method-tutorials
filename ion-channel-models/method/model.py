@@ -101,6 +101,12 @@ class Model(pints.ForwardModel):
         self.init_state = self.default_init_state
         self.set_continue_simulate(False)
 
+        self.return_open()
+
+    def return_open(self, return_open=False):
+        # If True, `simulate()` will return (current, open_probability)
+        self._return_open = return_open
+
     def n_parameters(self):
         # n_parameters() method for Pints
         return len(self.parameters)
@@ -162,6 +168,9 @@ class Model(pints.ForwardModel):
         else:
             to_read = read_log
 
+        if self._return_open:
+            to_read += ['ikr.O']
+
         # Run!
         try:
             p = Timeout(self.max_evaluation_time)
@@ -179,9 +188,12 @@ class Model(pints.ForwardModel):
         # Return all lump currents
         if read_log is None:
             o = np.zeros(times.shape)
-            for i in to_read:
+            for i in self._readout:
                 o += d[i]
-            return o
+            if self._return_open:
+                return o, d['ikr.O']
+            else:
+                return o
         else:
             return d
 
