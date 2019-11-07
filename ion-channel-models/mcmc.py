@@ -127,9 +127,9 @@ for i in fit_idx:
 # Run
 mcmc = pints.MCMCController(logposterior, len(transform_x0_list),
         transform_x0_list, method=pints.PopulationMCMC)
-n_iter = 100000
+n_iter = 200000
 mcmc.set_max_iterations(n_iter)
-mcmc.set_initial_phase_iterations(int(0.05 * n_iter))
+mcmc.set_initial_phase_iterations(200)
 mcmc.set_parallel(False)
 mcmc.set_chain_filename('%s/%s-chain.csv' % (savedir, saveas))
 mcmc.set_log_pdf_filename('%s/%s-pdf.csv' % (savedir, saveas))
