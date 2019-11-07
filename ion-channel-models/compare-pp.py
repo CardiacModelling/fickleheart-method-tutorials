@@ -119,7 +119,7 @@ plt.subplots_adjust(hspace=0)
 plt.savefig('%s/%s' % (savedir, saveas), dpi=200, bbox_inches='tight')
 plt.close()
 
-# Plot model
+# Plot model only
 fig, axes = plt.subplots(2, 1, sharex=True, figsize=(8, 6),
         gridspec_kw={'height_ratios': [1, 2]})
 axes[0].plot(times, voltage, c='#7f7f7f')
@@ -143,12 +143,13 @@ plt.savefig('%s/%s-only-model' % (savedir, saveas), dpi=200,
         bbox_inches='tight')
 plt.close()
 
-# Plot model
+# Plot discrepancy only
 fig, axes = plt.subplots(2, 1, sharex=True, figsize=(8, 6),
         gridspec_kw={'height_ratios': [1, 2]})
 axes[0].plot(times, voltage, c='#7f7f7f')
 axes[0].set_ylabel('Voltage (mV)')
-axes[1].plot(times, data, alpha=0.5, c='#7f7f7f', label='Data')
+axes[1].plot(times, data - ppc_model_mean_list[0], alpha=0.5, c='#7f7f7f',
+        label='Data - mean model (iid noise)')
 for i, d in enumerate(discrepancy_names):
     ppc_mean = ppc_disc_mean_list[i]
     ppc_sd = ppc_disc_sd_list[i]
