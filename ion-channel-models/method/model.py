@@ -164,9 +164,9 @@ class Model(pints.ForwardModel):
             self.simulation2.set_state(self.simulation1.state())
         
         if read_log is None:
-            to_read = self._readout
+            to_read = list(self._readout)
         else:
-            to_read = read_log
+            to_read = list(read_log)
 
         if self._return_open:
             to_read += ['ikr.O']

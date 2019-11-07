@@ -219,8 +219,10 @@ class DiscrepancyLogLikelihood(pints.ProblemLogLikelihood):
         if self._use_open_prob:
             # sim_current, open_prob = self._problem.evaluate(model_params)
             sim_current, open_prob = self._problem._model.simulate(model_params, self._times)
+            sim_current = np.asarray(sim_current).reshape((self._nt,))
+            open_prob = np.asarray(open_prob).reshape((self._nt,))
             sim_current = sim_current[::self._downsample].reshape((-1,)).astype(np.float32)
-            open_prob = open_prob[::self._downsample].reshape((-1,)).astype(np.float32)
+            open_prob = open_prob[::self._downsample].reshape((-1,)).astype(np.float32)[:,None]
             ind_open_prob = open_prob[::self._num_ind_thin,:]
             return self._loglikelihood(sim_current,open_prob,ind_open_prob,Utx_rho,Utx_ker_sigma,Utx_sigma)
         else:
