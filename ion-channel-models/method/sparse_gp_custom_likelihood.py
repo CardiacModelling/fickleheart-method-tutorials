@@ -323,7 +323,9 @@ class DiscrepancyLogLikelihood(pints.ProblemLogLikelihood):
         try:
             ll = self._loglikelihood(sim_current, Utx_rho, Utx_ker_sigma,
                     Utx_sigma)
-        except np.linalg.LinAlgError:
+        except:
+            import sys
+            print(sys.exc_info()[0], "occured.")  # not sure what exception...
             return -1. * float('inf')
 
         if self._temperature is not None:

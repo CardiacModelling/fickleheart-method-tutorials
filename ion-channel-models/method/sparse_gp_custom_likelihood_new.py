@@ -224,10 +224,18 @@ class DiscrepancyLogLikelihood(pints.ProblemLogLikelihood):
             sim_current = sim_current[::self._downsample].reshape((-1,)).astype(np.float32)
             open_prob = open_prob[::self._downsample].reshape((-1,)).astype(np.float32)[:,None]
             ind_open_prob = open_prob[::self._num_ind_thin,:]
-            return self._loglikelihood(sim_current,open_prob,ind_open_prob,Utx_rho,Utx_ker_sigma,Utx_sigma)
         else:
             sim_current = self._problem.evaluate(model_params)[::self._downsample].reshape((-1,)).astype(np.float32)
-            return self._loglikelihood(sim_current,Utx_rho,Utx_ker_sigma,Utx_sigma)
 
-    
+        try:
+            if self._use_open_prob:
+                ll = self._loglikelihood(sim_current,open_prob,ind_open_prob,Utx_rho,Utx_ker_sigma,Utx_sigma)
+            else:
+                ll = self._loglikelihood(sim_current,Utx_rho,Utx_ker_sigma,Utx_sigma)
+        except:
+            import sys
+            print(sys.exc_info()[0], "occured.")  # not sure what exception...
+            return -1. * float('inf')
+
+        return ll
 
