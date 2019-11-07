@@ -109,6 +109,7 @@ ppc_mean = np.mean(ppc, axis=0)
 var_1 = np.mean(np.power(ppc, 2), axis=0)
 var_2 = np.power(np.mean(ppc, axis=0), 2)
 ppc_sd = np.sqrt(var_1 - var_2)
+print(np.sum(np.abs(ppc_sd - np.std(ppc, axis=0))))
 
 fig, axes = plt.subplots(2, 1, sharex=True, figsize=(8, 6),
         gridspec_kw={'height_ratios': [1, 2]})

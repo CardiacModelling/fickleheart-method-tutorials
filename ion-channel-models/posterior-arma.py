@@ -187,6 +187,7 @@ model_ppc_mean = np.mean(model_mean, axis=0)
 var1_1 = np.mean(np.power(model_mean, 2), axis=0)
 var1_2 = np.power(np.mean(model_mean, axis=0), 2)
 model_ppc_sd = np.sqrt(var1_1 - var1_2)
+print(np.sum(np.abs(model_ppc_sd - np.std(model_mean, axis=0))))
 
 fig, axes = plt.subplots(2, 1, sharex=True, figsize=(8, 6),
         gridspec_kw={'height_ratios': [1, 2]})
@@ -217,7 +218,7 @@ fig, axes = plt.subplots(2, 1, sharex=True, figsize=(8, 6),
         gridspec_kw={'height_ratios': [1, 2]})
 axes[0].plot(times, voltage, c='#7f7f7f')
 axes[0].set_ylabel('Voltage (mV)')
-axes[1].plot(times, data, alpha=0.5, label='data')
+axes[1].plot(times, data - model_ppc_mean, alpha=0.5, label='data')
 axes[1].plot(times, armax_ppc_mean, label='Mean')
 axes[1].plot(times, armax_ppc_mean + n_sd * armax_ppc_sd, '-', color='blue',
         lw=0.5, label='95% C.I.')

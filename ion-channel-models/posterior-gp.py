@@ -196,6 +196,7 @@ model_mean = np.mean(model_ppc_mean, axis=0)
 var1_1 = np.mean(np.power(model_ppc_mean, 2), axis=0)
 var1_2 = np.power(np.mean(model_ppc_mean, axis=0), 2)
 model_sd = np.sqrt(var1_1 - var1_2)
+print(np.sum(np.abs(model_sd - np.std(model_ppc_mean, axis=0))))
 
 fig, axes = plt.subplots(2, 1, sharex=True, figsize=(8, 6),
         gridspec_kw={'height_ratios': [1, 2]})
@@ -225,7 +226,7 @@ fig, axes = plt.subplots(2, 1, sharex=True, figsize=(8, 6),
         gridspec_kw={'height_ratios': [1, 2]})
 axes[0].plot(times, voltage, c='#7f7f7f')
 axes[0].set_ylabel('Voltage (mV)')
-axes[1].plot(times, data, alpha=0.5, label='data')
+axes[1].plot(times, data - model_mean, alpha=0.5, label='data')
 axes[1].plot(times, gp_only_mean, label='Mean')
 n_sd = scipy_stats_norm.ppf(1. - .05 / 2.)
 axes[1].plot(times, gp_only_mean + n_sd * gp_only_sd, '-', color='blue',
