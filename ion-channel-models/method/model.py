@@ -183,7 +183,11 @@ class Model(pints.ForwardModel):
             del(p)
         except (myokit.SimulationError, myokit.SimulationCancelledError):
             # return float('inf')
-            return np.full(times.shape, float('inf'))
+            if self._return_open:
+                return np.full(times.shape, float('inf')), \
+                        np.full(times.shape, float('inf'))
+            else:
+                return np.full(times.shape, float('inf'))
 
         # Return all lump currents
         if read_log is None:
