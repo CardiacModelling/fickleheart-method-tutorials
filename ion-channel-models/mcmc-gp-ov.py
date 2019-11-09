@@ -141,7 +141,7 @@ for _ in range(10):
             logposterior(transform_priorparams))
 
 # Load fitting results
-calloaddir = './out/' + info_id + '-gp-tv'
+calloaddir = './out/' + info_id + '-gp-ov'
 load_seed = '542811797'
 fit_idx = [1, 2, 3]
 transform_x0_list = []
