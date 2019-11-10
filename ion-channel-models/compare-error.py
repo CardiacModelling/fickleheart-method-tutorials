@@ -111,7 +111,7 @@ ax.set_yticks([])
 for i, n in enumerate(names):
     plt.text(2 + 4 * i, 3.5, n, **targs)
 
-label = 'Model A'
+label = 'Model %s' % which_model
 plt.text(-1.75, 3.5, label, {'weight': 'normal', 'size': 14}, **targs)
 
 for i, n in enumerate(predict_list):
