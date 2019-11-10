@@ -15,8 +15,8 @@ Posterior distributions with different discrepancy models.
 """
 
 model_list = ['A', 'B', 'C']
-discrepancy_list = ['', '-gp', '-arma_2_2', '-arma_2_2-inv']
-discrepancy_names = ['iid noise', 'GP', 'ARMAX(2, 2)', 'invertible ARMAX(2, 2)']
+discrepancy_list = ['', '-gp', '-arma_2_2']#, '-arma_2_2-inv']
+discrepancy_names = ['iid noise', 'GP(t)', 'ARMAX(2, 2)']#, 'invertible ARMAX(2, 2)']
 chain_to_use = [2, 2, 2, 1]
 
 try:
