@@ -113,7 +113,7 @@ if USE_PROBABILITY_WITH_VOLTAGE:
 else:
     logrhoprior = InverseGammaLogPrior(alpha=5,beta=5,transform=True)
     nds = 3  # Number of non-model parameters
-logkersdprior = InverseGammaLogPrior(alpha=1, beta=10, transform=True)
+logkersdprior = InverseGammaLogPrior(alpha=5, beta=5, transform=True)
 # Compose all priors
 logprior = pints.ComposedLogPrior(logmodelprior, lognoiseprior, logrhoprior,
         logkersdprior)
@@ -148,7 +148,7 @@ params, logposteriors = [], []
 
 for i in range(N):
 
-    if i == 0:
+    if i < 5:
         x0 = transform_priorparams
     else:
         # Randomly pick a starting point
