@@ -97,12 +97,12 @@ def row(axes, y, data, std=None):
         text = fmat.format(e).strip()
         if std:
             text += ' (' + fmat.format(std[i]).strip() + ')'
-        plt.text(x + w / 2, y + h / 2, text, **targs)
+        plt.text(x + w / 2., y + h / 2., text, **targs)
 
 plt.figure(figsize=(8, 1.5))
 plt.subplots_adjust(0.005, 0.005, 0.995, 0.995)
 
-plt.xlim(-4.2, 20)
+plt.xlim(-6.2, 20)
 plt.ylim(0, 4)
 
 ax = plt.subplot(1, 1, 1)
@@ -115,12 +115,15 @@ label = 'Model %s' % which_model
 plt.text(-1.75, 3.5, label, {'weight': 'normal', 'size': 14}, **targs)
 
 for i, n in enumerate(predict_list):
-    plt.text(-2.1, i + .5, n, **targs)
+    plt.text(-1.5, i + .5, n, **targs)
+plt.text(-4.5, 2.5, 'Calibration:', **targs)
+plt.text(-4.5, 1.0, 'Prediction:', **targs)
 
 for i, e in enumerate(error):
     row(ax, i, e)
 
 plt.axvline(0, color='#dddddd')
+plt.axhline(2, color='#dddddd')
 plt.axhline(4, color='#555555')
 plt.axhline(3, color='#555555')
 
