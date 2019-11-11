@@ -58,7 +58,7 @@ for j, which_predict in enumerate(predict_list):
         ppc_error = error_measure(ppc_mean, data)
         error[-1].append(ppc_error)
         if j == 0:
-            names.append(discrepancy_names[i])
+            names.append('ODE model \n& ' + discrepancy_names[i])
 
         if d == '':
             # ppc_model_mean = np.NaN
@@ -73,7 +73,7 @@ for j, which_predict in enumerate(predict_list):
             # ppc_disc_error = error_measure(ppc_disc_mean, data)
             error[-1].append(ppc_model_error)
             if j == 0:
-                names.append('Model with\n' + discrepancy_names[i])
+                names.append('ODE model\nonly')
 
 # Plot
 cmap = matplotlib.cm.get_cmap('plasma_r')
@@ -99,32 +99,40 @@ def row(axes, y, data, std=None):
             text += ' (' + fmat.format(std[i]).strip() + ')'
         plt.text(x + w / 2., y + h / 2., text, **targs)
 
-plt.figure(figsize=(8, 1.5))
+plt.figure(figsize=(8, 1.8))
 plt.subplots_adjust(0.005, 0.005, 0.995, 0.995)
 
-plt.xlim(-6.2, 20)
-plt.ylim(0, 4)
+xperbox = 4.
+plt.xlim(-6.2, xperbox * 5)
+plt.ylim(0, 5)
 
 ax = plt.subplot(1, 1, 1)
 ax.set_xticks([])
 ax.set_yticks([])
 for i, n in enumerate(names):
-    plt.text(2 + 4 * i, 3.5, n, **targs)
+    plt.text(xperbox / 2. + xperbox * i, 3.5, n, **targs)
+plt.text(xperbox * 2, 4.5, 'Fitted with GP(t)', **targs)
+plt.plot([xperbox + 0.25, xperbox + xperbox * 2 - 0.25], [4.2]*2, c='#dddddd')
+plt.text(xperbox * 4, 4.5, 'Fitted with ARMAX(2, 2)', **targs)
+plt.plot([xperbox * 3 + 0.25, xperbox * 3 + xperbox * 2 - 0.25], [4.2]*2,
+        c='#dddddd')
 
 label = 'Model %s' % which_model
-plt.text(-1.75, 3.5, label, {'weight': 'normal', 'size': 14}, **targs)
+plt.text(-1.75, 4., label, {'weight': 'normal', 'size': 14}, **targs)
 
 for i, n in enumerate(predict_list):
     plt.text(-1.5, i + .5, n, **targs)
-plt.text(-4.5, 2.5, 'Calibration:', **targs)
-plt.text(-4.5, 1.0, 'Prediction:', **targs)
+plt.text(-4.5, 2.5, 'Calibration', **targs)
+plt.plot([-3]*2, [2.1, 2.9], c='#dddddd')
+plt.text(-4.5, 1.0, 'Prediction', **targs)
+plt.plot([-3]*2, [0.2, 1.8], c='#dddddd')
 
 for i, e in enumerate(error):
     row(ax, i, e)
 
 plt.axvline(0, color='#dddddd')
 plt.axhline(2, color='#dddddd')
-plt.axhline(4, color='#555555')
+plt.axhline(5, color='#555555')
 plt.axhline(3, color='#555555')
 
 plt.savefig(savedir + '/' + saveas + '.pdf', format='pdf')
