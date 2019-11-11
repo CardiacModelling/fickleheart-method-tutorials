@@ -137,6 +137,7 @@ armax_mean = []
 armax_sd = []
 model_mean = []
 armax_only_mean = []
+armax_only_sd = []
 
 for ind in np.random.choice(range(0, ppc_size), 100, replace=False):
     ode_params = np.copy(ppc_samples[ind, :-n_arama])
@@ -149,12 +150,15 @@ for ind in np.random.choice(range(0, ppc_size), 100, replace=False):
     armax_result.maparams = armax_params[-armax_result.k_ma:]
     armax_result.model.exog = exog_current  # 'old sim.' from training prtocol
     mean, sd, _ = armax_result.forecast(steps=len(times), exog=ode_sol)
+    ao_mean, ao_sd, _ = armax_result.forecast(steps=len(times), exog=np.zeros(len(ode_sol)))
     armax_result.model.exog = ode_sol[:, None]
 
     armax_mean.append(mean)
     armax_sd.append(sd)
     model_mean.append(ode_sol)
-    armax_only_mean.append(mean - ode_sol)
+    #armax_only_mean.append(mean - ode_sol)
+    armax_only_mean.append(ao_mean)
+    armax_only_sd.append(ao_sd)
 
 n_sd = scipy_stats_norm.ppf(1. - .05 / 2.)
 
@@ -209,7 +213,7 @@ plt.close()
 
 # ARMAX only
 armax_ppc_mean = np.mean(armax_only_mean, axis=0)
-var1 = np.mean(np.power(armax_sd, 2), axis=0)
+var1 = np.mean(np.power(armax_only_sd, 2), axis=0)
 var2_1 = np.mean(np.power(armax_only_mean, 2), axis=0)
 var2_2 = np.power(np.mean(armax_only_mean, axis=0), 2)
 armax_ppc_sd = np.sqrt(var1 + (var2_1 - var2_2))
