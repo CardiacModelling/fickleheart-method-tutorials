@@ -123,9 +123,9 @@ plt.text(-1.75, 4., label, {'weight': 'normal', 'size': 14}, **targs)
 for i, n in enumerate(predict_list):
     plt.text(-1.5, i + .5, n, **targs)
 plt.text(-4.5, 2.5, 'Calibration', **targs)
-plt.plot([-3]*2, [2.1, 2.9], c='#dddddd')
+plt.plot([-2.9]*2, [2.1, 2.9], c='#dddddd')
 plt.text(-4.5, 1.0, 'Prediction', **targs)
-plt.plot([-3]*2, [0.2, 1.8], c='#dddddd')
+plt.plot([-2.9]*2, [0.2, 1.8], c='#dddddd')
 
 for i, e in enumerate(error):
     row(ax, i, e)
