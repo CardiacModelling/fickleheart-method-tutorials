@@ -20,6 +20,10 @@ import model as m
 Posterior predictive with ARMA noise model.
 """
 
+def rmse(t1, t2):
+    # Root mean square error
+    return np.sqrt(np.mean(np.power(np.subtract(t1, t2), 2)))
+
 model_list = ['A', 'B', 'C']
 predict_list = ['sinewave', 'staircase', 'activation', 'ap']
 
@@ -138,6 +142,8 @@ armax_sd = []
 model_mean = []
 armax_only_mean = []
 armax_only_sd = []
+armax_rmse = []
+model_rmse = []
 
 for ind in np.random.choice(range(0, ppc_size), 100, replace=False):
     ode_params = np.copy(ppc_samples[ind, :-n_arama])
@@ -159,6 +165,17 @@ for ind in np.random.choice(range(0, ppc_size), 100, replace=False):
     #armax_only_mean.append(mean - ode_sol)
     armax_only_mean.append(ao_mean)
     armax_only_sd.append(ao_sd)
+
+    # To compute E[rmse]
+    ppc_sample_sample = scipy_stats_norm(mean, sd).rvs()
+    armax_rmse.append(rmse(data, ppc_sample_sample))
+    model_rmse.append(rmse(data, ode_sol))
+
+# Compute E[rmse]
+expected_armax_rmse = np.mean(armax_rmse, axis=0)
+expected_model_rmse = np.mean(model_rmse, axis=0)
+np.savetxt('%s/%s-armax-rmse.txt' % (savedir, saveas), [expected_armax_rmse])
+np.savetxt('%s/%s-model-rmse.txt' % (savedir, saveas), [expected_model_rmse])
 
 n_sd = scipy_stats_norm.ppf(1. - .05 / 2.)
 

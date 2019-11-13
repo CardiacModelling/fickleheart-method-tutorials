@@ -20,6 +20,10 @@ import model as m
 Posterior predictive with i.i.d. noise model.
 """
 
+def rmse(t1, t2):
+    # Root mean square error
+    return np.sqrt(np.mean(np.power(np.subtract(t1, t2), 2)))
+
 model_list = ['A', 'B', 'C']
 predict_list = ['sinewave', 'staircase', 'activation', 'ap']
 
@@ -94,6 +98,7 @@ ppc_samples = pints.io.load_samples('%s/%s-chain_0.csv' % (loaddir, loadas))
 # Compute
 ppc_size = np.size(ppc_samples, axis=0)
 ppc = []
+model_rmse = []
 
 for ind in np.random.choice(range(0, ppc_size), 100, replace=False):
     # Expecting these parameters can be used for simulation
@@ -102,7 +107,14 @@ for ind in np.random.choice(range(0, ppc_size), 100, replace=False):
     # Simulate
     current_valid_protocol = model.simulate(params, times)
 
-    ppc.append(current_valid_protocol )
+    ppc.append(current_valid_protocol)
+
+    # To compute E[rmse]
+    model_rmse.append(rmse(data, current_valid_protocol))
+
+# Compute E[rmse]
+expected_model_rmse = np.mean(model_rmse, axis=0)
+np.savetxt('%s/%s-model-rmse.txt' % (savedir, saveas), [expected_model_rmse])
 
 n_sd = scipy_stats_norm.ppf(1. - .05 / 2.)
 ppc_mean = np.mean(ppc, axis=0)

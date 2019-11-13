@@ -20,6 +20,10 @@ import model as m
 Posterior predictive with (sparse) GP discrepancy model.
 """
 
+def rmse(t1, t2):
+    # Root mean square error
+    return np.sqrt(np.mean(np.power(np.subtract(t1, t2), 2)))
+
 model_list = ['A', 'B', 'C']
 predict_list = ['sinewave', 'staircase', 'activation', 'ap']
 
@@ -134,6 +138,8 @@ gp_ppc_mean = []
 gp_ppc_var = []
 model_ppc_mean = []
 gp_only_ppc_mean = []
+gp_rmse = []
+model_rmse = []
 
 training_data = data_train.reshape((-1,))
 t_training_protocol = times_train.reshape((-1, 1)) 
@@ -165,6 +171,17 @@ for ind in np.random.choice(range(0, ppc_size), 100, replace=False):
     gp_ppc_var.append(ppc_var)
     model_ppc_mean.append(current_valid_protocol)
     gp_only_ppc_mean.append(ppc_mean - current_valid_protocol)
+
+    # To compute E[rmse]
+    ppc_sample_sample = scipy_stats_norm(ppc_mean, np.sqrt(ppc_var)).rvs()
+    gp_rmse.append(rmse(data, ppc_sample_sample))
+    model_rmse.append(rmse(data, current_valid_protocol))
+
+# Compute E[rmse]
+expected_gp_rmse = np.mean(gp_rmse, axis=0)
+expected_model_rmse = np.mean(model_rmse, axis=0)
+np.savetxt('%s/%s-gp-rmse.txt' % (savedir, saveas), [expected_gp_rmse])
+np.savetxt('%s/%s-model-rmse.txt' % (savedir, saveas), [expected_model_rmse])
 
 n_sd = scipy_stats_norm.ppf(1. - .05 / 2.)
 
