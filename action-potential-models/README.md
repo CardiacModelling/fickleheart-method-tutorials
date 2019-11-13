@@ -1,4 +1,4 @@
-# Action potential model tutorial
+# Action potential model example
 
 A typical method of fitting cardiac action potential models is by scaling/updating the maximum conductance parameters of an existing action potential model.
 This method usually assumes that the underlying kinetics of each ion channel current within the candidate model are correct and perfect (i.e. they match perfectly to the ground truth).
@@ -9,7 +9,6 @@ Finally, we compare the prediction of those calibrated candidate models under ou
 ### Models
 
 - Model Fink 2008 (candidate model): Fink et al. 2008 model.
-- Model TNNP 2004 wrong (candidate model): modified ten Tusscher et al. 2004 model.
 - Model TNNP 2004 (ground truth model): ten Tusscher et al. 2004 model.
 
 ### Use of protocol
@@ -34,12 +33,12 @@ Note that here we do not have validation protocol, as to emphasise the importanc
 1. Run `generate-data.py` to generate synthetic data with iid Gaussian noise (create `data`).
 2. Run `fit.py` with arguments `[which_model]` and `[which_data]` to calibrate the specified model with the specified (protocol) data from `./data`. Alternatively run `fit-all.sh`.
 3. Run `predict.py` with arguments `[which_model]`, `[which_calibration]` and `[which_predict]` to predict the specified (protocol) data (in `./data`) with the specified model and calibrated model parameters (in `./out`). Alternatively run `predict-all.sh`.
+4. Run `mcmc.py` with arguments `[which_model]` and `[which_data]` to run MCMC for the specified model with the specified (protocol) data from `./data`. Alternatively run `mcmc-all.sh`.
+5. Run `posterior.py` with arguments `[which_model]`, `[which_calibration]` and `[which_predict]` to create posterior predictives for the specified (protocol) data (in `./data`) with the specified model and MCMC samples of the model parameters (in `./out`). Alternatively run `posterior-all.sh`.
 
 ### TODO
 
-- For #2 above, can also try history matching type of method? Though doubt this will make a difference.
-- Run MCMC, to show we are 'confident' wrongly.
-- Do `current` prediction.
+- For #2 above, maybe also try history matching type of method? But this probably will not make a difference.
 
 ### Output
 
