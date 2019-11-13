@@ -13,19 +13,19 @@ The code requires Python (3.5+) and the following dependencies:
 
 For Linux/macOS, you may try
 ```console
+$ cd /path/to/fickleheart-method-tutorials
+$ ### Set up Python virtual env
 $ python3 -m pip install --user --upgrade pip
 $ python3 -m pip install --user virtualenv
-$ cd /path/to/fickleheart-method-tutorials
 $ python3 -m venv env
 $ source env/bin/activate
 $ pip install --upgrade pip
+$ ### Install dependencies
 $ pip3 install myokit                   # Get Myokit, might need external installation for sundials
-$ cd /path/to/pints                     # Get PINTS
-$ pip install .
-$ cd -
-$ pip install Theano                    # Get Theano
-$ pip install statsmodels               # Get StatsModels
-$ pip install joblib                    # Get Joblib
+$ pip3 install git+https://github.com/pints-team/pints  # Get PINTS
+$ pip3 install Theano                   # Get Theano
+$ pip3 install statsmodels              # Get StatsModels
+$ pip3 install joblib                   # Get Joblib
 ```
 
 
