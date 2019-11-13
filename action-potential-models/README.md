@@ -11,6 +11,9 @@ Finally, we compare the prediction of those calibrated candidate models under ou
 - Model Fink 2008 (candidate model): Fink et al. 2008 model.
 - Model TNNP 2004 (ground truth model): ten Tusscher et al. 2004 model.
 
+The differences between the two models can be viewed by running `plot-differences.py`.
+![Model differences](fig/model-differences.png)
+
 ### Use of protocol
 
 In this tutorial, we split our protocols into calibration and COU.
