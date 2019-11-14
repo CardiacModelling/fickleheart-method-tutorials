@@ -198,6 +198,7 @@ axes[1].plot(times, ppc_mean - n_sd * ppc_sd, '-', color='blue', lw=0.5)
 axes[1].legend()
 axes[1].set_ylabel('Current (pA)')
 axes[1].set_xlabel('Time (ms)')
+axes[0].set_title('ODE model + ARMA(%s, %s)' % (arma_p, arma_q))
 plt.subplots_adjust(hspace=0)
 plt.savefig('%s/%s-pp.png' % (savedir, saveas), dpi=200,
         bbox_inches='tight')
@@ -223,6 +224,7 @@ axes[1].plot(times, model_ppc_mean - n_sd * model_ppc_sd, '-', color='blue',
 axes[1].legend()
 axes[1].set_ylabel('Current (pA)')
 axes[1].set_xlabel('Time (ms)')
+axes[0].set_title('ODE model only')
 plt.subplots_adjust(hspace=0)
 plt.savefig('%s/%s-pp-model-only.png' % (savedir, saveas), dpi=200,
         bbox_inches='tight')
@@ -248,6 +250,7 @@ axes[1].plot(times, armax_ppc_mean - n_sd * armax_ppc_sd, '-', color='blue',
 axes[1].legend()
 axes[1].set_ylabel('Current (pA)')
 axes[1].set_xlabel('Time (ms)')
+axes[0].set_title('ARMA(%s, %s) only' % (arma_p, arma_q))
 plt.subplots_adjust(hspace=0)
 plt.savefig('%s/%s-pp-armax-only.png' % (savedir, saveas), dpi=200,
         bbox_inches='tight')
