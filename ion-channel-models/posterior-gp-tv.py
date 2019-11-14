@@ -88,9 +88,6 @@ data = np.loadtxt(data_dir + '/' + data_file_name,
 times = data[:, 0]
 data = data[:, 1]
 
-# Inducing or speudo points for the FITC GP
-inducing_times_train = times_train[::1000]
-
 # Load model
 model_train = m.Model(info.model_file,
         variables=info.parameters,
@@ -114,7 +111,12 @@ model = m.Model(info.model_file,
 model.set_fixed_form_voltage_protocol(protocol, protocol_times)
 
 # Simulate voltage
+voltage_train = model_train.voltage(times_train)
 voltage = model.voltage(times)
+
+# Inducing or speudo points for the FITC GP
+inducing_times_train = times_train[::1000]
+inducing_voltage_train = voltage_train[::1000]
 
 # Load MCMC results
 ppc_samples = pints.io.load_samples('%s/%s-chain_0.csv' % (loaddir, loadas))
@@ -143,10 +145,17 @@ model_rmse = []
 
 training_data = data_train.reshape((-1,))
 t_training_protocol = times_train.reshape((-1, 1)) 
+v_training_protocol = voltage_train.reshape((-1,1))
+x_training_protocol = np.concatenate(
+        (t_training_protocol, v_training_protocol), axis=1)
 ind_t = inducing_times_train.reshape((-1, 1))
+ind_v = inducing_voltage_train.reshape((-1,1))
+ind_x = np.concatenate((ind_t, ind_v), axis=1)
 t_valid_protocol = times.reshape((-1, 1)) 
+v_valid_protocol = voltage.reshape((-1,1))
+x_valid_protocol = np.concatenate((t_valid_protocol, v_valid_protocol), axis=1)
 ppc_sampler_mean, ppc_sampler_var = _create_theano_conditional_graph_voltage(
-        training_data, t_training_protocol, ind_t, t_valid_protocol)
+        training_data, x_training_protocol, ind_x, x_valid_protocol)
 nds = 4  # Number of discrepancy parameters
 
 #for ind in random.sample(range(0, np.size(ppc_samples, axis=0)), 100):
@@ -204,6 +213,7 @@ axes[1].plot(times, ppc_mean - n_sd * ppc_sd, '-', color='blue', lw=0.5)
 axes[1].legend()
 axes[1].set_ylabel('Current (pA)')
 axes[1].set_xlabel('Time (ms)')
+axes[0].set_title('ODE model + GP(t, V)')
 plt.subplots_adjust(hspace=0)
 plt.savefig('%s/%s-pp.png' % (savedir, saveas), dpi=200,
         bbox_inches='tight')
@@ -228,6 +238,7 @@ axes[1].plot(times, model_mean - n_sd * model_sd, '-', color='blue', lw=0.5)
 axes[1].legend()
 axes[1].set_ylabel('Current (pA)')
 axes[1].set_xlabel('Time (ms)')
+axes[0].set_title('ODE model only')
 plt.subplots_adjust(hspace=0)
 plt.savefig('%s/%s-pp-model-only.png' % (savedir, saveas), dpi=200,
         bbox_inches='tight')
@@ -254,6 +265,7 @@ axes[1].plot(times, gp_only_mean - n_sd * gp_only_sd, '-', color='blue',
 axes[1].legend()
 axes[1].set_ylabel('Current (pA)')
 axes[1].set_xlabel('Time (ms)')
+axes[0].set_title('GP(t, V) only')
 plt.subplots_adjust(hspace=0)
 plt.savefig('%s/%s-pp-gp-only.png' % (savedir, saveas), dpi=200,
         bbox_inches='tight')
