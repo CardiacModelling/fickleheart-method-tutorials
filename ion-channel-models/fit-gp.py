@@ -133,7 +133,7 @@ params, logposteriors = [], []
 
 for i in range(N):
 
-    if i == 0:
+    if i < 5:
         x0 = transform_priorparams
     else:
         # Randomly pick a starting point
