@@ -53,7 +53,7 @@ info = importlib.import_module(info_id)
 
 data_dir = './data'
 
-savedir = './fig/mcmc-' + info_id + '-gp-tv'
+savedir = './fig/mcmc-' + info_id + '-gp-v'
 if not os.path.isdir(savedir):
     os.makedirs(savedir)
 if not os.path.isdir(savedir + '/raw'):
@@ -114,7 +114,7 @@ model = m.Model(info.model_file,
 model.set_fixed_form_voltage_protocol(protocol, protocol_times)
 
 # Simulate voltage
-voltage_train = model_train.voltage(times)
+voltage_train = model_train.voltage(times_train)
 voltage = model.voltage(times)
 
 # Load MCMC results
@@ -134,7 +134,12 @@ ppc_samples = pints.io.load_samples('%s/%s-chain_0.csv' % (loaddir, loadas))
 # (gp_params, ode_params). To propagate the uncertainty fully we then use the
 # same Variance identity for ARMAX to integrate out (gp_params, ode_params).
 # -----------------------------------------------------------------------------
-USE_PROBABILITY_WITH_VOLTAGE = True
+if '-vo' in sys.argv:
+    USE_PROBABILITY_WITH_VOLTAGE = True
+elif '-v' in sys.argv:
+    USE_PROBABILITY_WITH_VOLTAGE = False
+else:
+    raise ValueError('Require to specify either \'-v\' or \'-vo\'.')
 NUM_IND_THIN = 1000
 
 ppc_size = np.size(ppc_samples, axis=0)
