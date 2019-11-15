@@ -45,6 +45,14 @@ if which_predict not in predict_list:
     raise ValueError('Input data %s is not available in the predict list' \
             % which_predict)
 
+if '-ov' in sys.argv:
+    USE_PROBABILITY_WITH_VOLTAGE = True
+elif '-v' in sys.argv:
+    USE_PROBABILITY_WITH_VOLTAGE = False
+else:
+    raise ValueError('Require to specify either \'-v\' or \'-ov\'.')
+NUM_IND_THIN = 1000
+
 # Get all input variables
 import importlib
 sys.path.append('./mmt-model-files')
@@ -53,7 +61,10 @@ info = importlib.import_module(info_id)
 
 data_dir = './data'
 
-savedir = './fig/mcmc-' + info_id + '-gp-v'
+if USE_PROBABILITY_WITH_VOLTAGE:
+    savedir = './fig/mcmc-' + info_id + '-gp-ov'
+else:
+    savedir = './fig/mcmc-' + info_id + '-gp-v'
 if not os.path.isdir(savedir):
     os.makedirs(savedir)
 if not os.path.isdir(savedir + '/raw'):
@@ -63,7 +74,10 @@ data_file_name = 'data-%s.csv' % which_predict
 print('Predicting ', data_file_name)
 saveas = info_id + '-sinewave-' + which_predict
 
-loaddir = './out/mcmc-' + info_id + '-gp-tv'
+if USE_PROBABILITY_WITH_VOLTAGE:
+    loaddir = './out/mcmc-' + info_id + '-gp-ov'
+else:
+    loaddir = './out/mcmc-' + info_id + '-gp-v'
 loadas = info_id + '-sinewave'
 
 # Protocol
@@ -134,13 +148,6 @@ ppc_samples = pints.io.load_samples('%s/%s-chain_0.csv' % (loaddir, loadas))
 # (gp_params, ode_params). To propagate the uncertainty fully we then use the
 # same Variance identity for ARMAX to integrate out (gp_params, ode_params).
 # -----------------------------------------------------------------------------
-if '-vo' in sys.argv:
-    USE_PROBABILITY_WITH_VOLTAGE = True
-elif '-v' in sys.argv:
-    USE_PROBABILITY_WITH_VOLTAGE = False
-else:
-    raise ValueError('Require to specify either \'-v\' or \'-vo\'.')
-NUM_IND_THIN = 1000
 
 ppc_size = np.size(ppc_samples, axis=0)
 gp_ppc_mean = []
