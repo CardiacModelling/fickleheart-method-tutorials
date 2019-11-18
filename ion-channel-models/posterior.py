@@ -114,7 +114,7 @@ for ind in np.random.choice(range(0, ppc_size), 100, replace=False):
 
 # Compute E[rmse]
 expected_model_rmse = np.mean(model_rmse, axis=0)
-np.savetxt('%s/%s-model-rmse.txt' % (savedir, saveas), [expected_model_rmse])
+np.savetxt('%s/%s-rmse.txt' % (savedir, saveas), [expected_model_rmse])
 
 n_sd = scipy_stats_norm.ppf(1. - .05 / 2.)
 ppc_mean = np.mean(ppc, axis=0)
