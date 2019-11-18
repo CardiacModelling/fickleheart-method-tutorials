@@ -124,6 +124,32 @@ model.set_fixed_form_voltage_protocol(protocol, protocol_times)
 # Simulate voltage
 voltage = model.voltage(times)
 
+# Create posterior
+import importlib
+sys.path.append('./mmt-model-files')
+info_id = 'model_%s' % which_model
+info = importlib.import_module(info_id)
+import parametertransform
+transform_to_model_param = parametertransform.donothing
+transform_from_model_param = parametertransform.donothing
+noise_sigma = np.std(data[:500])
+import priors
+LogPrior = {
+        'model_A': priors.ModelALogPrior,
+        'model_B': priors.ModelBLogPrior,
+        }
+problem = pints.SingleOutputProblem(model, times, data)
+from armax_ode_tsa_likelihood import DiscrepancyLogLikelihood
+transparams = False
+loglikelihood = DiscrepancyLogLikelihood(problem, armax_result, transparams=transparams)
+logmodelprior = LogPrior[info_id](transform_to_model_param,
+        transform_from_model_param)
+from priors import ArmaNormalCentredLogPrior
+logarmaprior = ArmaNormalCentredLogPrior(armax_result, 0.25)
+# Compose all priors
+logprior = pints.ComposedLogPrior(logmodelprior, logarmaprior)
+logposterior = pints.LogPosterior(loglikelihood, logprior)
+
 # Load MCMC results
 ppc_samples = pints.io.load_samples('%s/%s-chain_0.csv' % (loaddir, loadas))
 
@@ -144,6 +170,7 @@ armax_only_mean = []
 armax_only_sd = []
 armax_rmse = []
 model_rmse = []
+posterior_all = []
 
 for ind in np.random.choice(range(0, ppc_size), 100, replace=False):
     ode_params = np.copy(ppc_samples[ind, :-n_arama])
@@ -171,11 +198,19 @@ for ind in np.random.choice(range(0, ppc_size), 100, replace=False):
     armax_rmse.append(rmse(data, ppc_sample_sample))
     model_rmse.append(rmse(data, ode_sol))
 
+    # To compute E[posterior]
+    params = np.copy(ppc_samples[ind, :])
+    posterior_all.append(logposterior(params))
+
 # Compute E[rmse]
 expected_armax_rmse = np.mean(armax_rmse, axis=0)
 expected_model_rmse = np.mean(model_rmse, axis=0)
 np.savetxt('%s/%s-armax-rmse.txt' % (savedir, saveas), [expected_armax_rmse])
 np.savetxt('%s/%s-model-rmse.txt' % (savedir, saveas), [expected_model_rmse])
+
+# Compute E[posterior]
+expected_posterior = np.mean(posterior_all, axis=0)
+np.savetxt('%s/%s-posterior.txt' % (savedir, saveas), [expected_posterior])
 
 n_sd = scipy_stats_norm.ppf(1. - .05 / 2.)
 

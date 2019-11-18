@@ -131,6 +131,42 @@ model.set_fixed_form_voltage_protocol(protocol, protocol_times)
 voltage_train = model_train.voltage(times_train)
 voltage = model.voltage(times)
 
+# Create posterior
+import importlib
+sys.path.append('./mmt-model-files')
+info_id = 'model_%s' % which_model
+info = importlib.import_module(info_id)
+import parametertransform
+transform_to_model_param = parametertransform.donothing
+transform_from_model_param = parametertransform.donothing
+noise_sigma = np.std(data[:500])
+import priors
+LogPrior = {
+        'model_A': priors.ModelALogPrior,
+        'model_B': priors.ModelBLogPrior,
+        }
+from priors import HalfNormalLogPrior, InverseGammaLogPrior
+from sparse_gp_custom_likelihood_new import DiscrepancyLogLikelihood
+NUM_IND_THIN = 1000
+problem = pints.SingleOutputProblem(model, times, data)
+loglikelihood = DiscrepancyLogLikelihood(problem, voltage=voltage,
+        num_ind_thin=NUM_IND_THIN, use_open_prob=USE_PROBABILITY_WITH_VOLTAGE,
+        downsample=None)
+logmodelprior = LogPrior[info_id](transform_to_model_param,
+        transform_from_model_param)
+lognoiseprior = HalfNormalLogPrior(sd=25, transform=True)
+if USE_PROBABILITY_WITH_VOLTAGE:
+    logrhoprior1 = InverseGammaLogPrior(alpha=5,beta=5,transform=True)
+    logrhoprior2 = InverseGammaLogPrior(alpha=5,beta=5,transform=True)
+    logrhoprior = pints.ComposedLogPrior(logrhoprior1, logrhoprior2)
+else:
+    logrhoprior = InverseGammaLogPrior(alpha=5,beta=5,transform=True)
+logkersdprior = InverseGammaLogPrior(alpha=5, beta=5, transform=True)
+# Compose all priors
+logprior = pints.ComposedLogPrior(logmodelprior, lognoiseprior, logrhoprior,
+        logkersdprior)
+logposterior = pints.LogPosterior(loglikelihood, logprior)
+
 # Load MCMC results
 ppc_samples = pints.io.load_samples('%s/%s-chain_0.csv' % (loaddir, loadas))
 
@@ -156,6 +192,7 @@ model_ppc_mean = []
 gp_only_ppc_mean = []
 gp_rmse = []
 model_rmse = []
+posterior_all = []
 
 training_data = data_train.reshape((-1,))
 t_training_protocol = times_train.reshape((-1, 1)) 
@@ -229,11 +266,20 @@ for ind in np.random.choice(range(0, ppc_size), 100, replace=False):
     gp_rmse.append(rmse(data, ppc_sample_sample))
     model_rmse.append(rmse(data, current_valid_protocol))
 
+    # To compute E[posterior]
+    params = np.copy(ppc_samples[ind, :])
+    params[-nds:] = np.log(params[-nds:])
+    posterior_all.append(logposterior(params))
+
 # Compute E[rmse]
 expected_gp_rmse = np.mean(gp_rmse, axis=0)
 expected_model_rmse = np.mean(model_rmse, axis=0)
 np.savetxt('%s/%s-gp-rmse.txt' % (savedir, saveas), [expected_gp_rmse])
 np.savetxt('%s/%s-model-rmse.txt' % (savedir, saveas), [expected_model_rmse])
+
+# Compute E[posterior]
+expected_posterior = np.mean(posterior_all, axis=0)
+np.savetxt('%s/%s-posterior.txt' % (savedir, saveas), [expected_posterior])
 
 n_sd = scipy_stats_norm.ppf(1. - .05 / 2.)
 

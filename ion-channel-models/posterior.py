@@ -92,6 +92,28 @@ model.set_fixed_form_voltage_protocol(protocol, protocol_times)
 # Simulate voltage
 voltage = model.voltage(times)
 
+# Create posterior
+import importlib
+sys.path.append('./mmt-model-files')
+info_id = 'model_%s' % which_model
+info = importlib.import_module(info_id)
+import parametertransform
+transform_to_model_param = parametertransform.donothing
+transform_from_model_param = parametertransform.donothing
+noise_sigma = np.std(data[:500])
+import priors
+LogPrior = {
+        'model_A': priors.ModelALogPrior,
+        'model_B': priors.ModelBLogPrior,
+        }
+problem = pints.SingleOutputProblem(model, times, data)
+loglikelihood = pints.GaussianLogLikelihood(problem)
+logmodelprior = LogPrior[info_id](transform_to_model_param,
+        transform_from_model_param)
+lognoiseprior = pints.UniformLogPrior([0.1 * noise_sigma], [10. * noise_sigma])
+logprior = pints.ComposedLogPrior(logmodelprior, lognoiseprior)
+logposterior = pints.LogPosterior(loglikelihood, logprior)
+
 # Load MCMC results
 ppc_samples = pints.io.load_samples('%s/%s-chain_0.csv' % (loaddir, loadas))
 
@@ -99,6 +121,7 @@ ppc_samples = pints.io.load_samples('%s/%s-chain_0.csv' % (loaddir, loadas))
 ppc_size = np.size(ppc_samples, axis=0)
 ppc = []
 model_rmse = []
+posterior_all = []
 
 for ind in np.random.choice(range(0, ppc_size), 100, replace=False):
     # Expecting these parameters can be used for simulation
@@ -112,9 +135,16 @@ for ind in np.random.choice(range(0, ppc_size), 100, replace=False):
     # To compute E[rmse]
     model_rmse.append(rmse(data, current_valid_protocol))
 
+    # To compute E[posterior]
+    posterior_all.append(logposterior(params))
+
 # Compute E[rmse]
 expected_model_rmse = np.mean(model_rmse, axis=0)
 np.savetxt('%s/%s-rmse.txt' % (savedir, saveas), [expected_model_rmse])
+
+# Compute E[posterior]
+expected_posterior = np.mean(posterior_all, axis=0)
+np.savetxt('%s/%s-posterior.txt' % (savedir, saveas), [expected_posterior])
 
 n_sd = scipy_stats_norm.ppf(1. - .05 / 2.)
 ppc_mean = np.mean(ppc, axis=0)

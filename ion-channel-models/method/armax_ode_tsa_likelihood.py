@@ -1,7 +1,7 @@
 from __future__ import print_function
 import pints
 import numpy as np
-
+import copy
 
 class DiscrepancyLogLikelihood(pints.ProblemLogLikelihood):
     """
@@ -14,12 +14,13 @@ class DiscrepancyLogLikelihood(pints.ProblemLogLikelihood):
 
         self._no = problem.n_outputs()
         self._np = problem.n_parameters()
-        self._armax_result = armax_result_obj
+        self._armax_result = copy.deepcopy(armax_result_obj)
         self._nds = len(self._armax_result.params) - 1
         self._n_parameters = self._np + self._nds
         self._nt = problem.n_times() 
         self._temperature = temperature
         self._transparams = transparams
+        self._armax_result.model.endog = np.copy(problem._values)
 
     def __call__(self, x):
         armax_params = x[-self._nds:]
