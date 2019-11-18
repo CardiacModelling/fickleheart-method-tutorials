@@ -15,9 +15,9 @@ Posterior distributions with different discrepancy models.
 """
 
 model_list = ['A', 'B', 'C']
-discrepancy_list = ['', '-gp', '-arma_2_2']#, '-arma_2_2-inv']
-discrepancy_names = ['iid noise', 'GP(t)', 'ARMAX(2, 2)']#, 'invertible ARMAX(2, 2)']
-chain_to_use = [2, 2, 2, 1]
+discrepancy_list = ['', '-gp', '-gp-ov', '-arma_2_2']
+discrepancy_names = ['iid noise', 'GP(t)', 'GP(O, V)', 'ARMAX(2, 2)']
+chain_to_use = [0, 0, 0, 0]
 
 try:
     which_model = sys.argv[1] 
