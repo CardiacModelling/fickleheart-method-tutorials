@@ -14,9 +14,9 @@ error_measure = rmse
 
 model_list = ['A', 'B']
 predict_list = ['sinewave', 'staircase', 'ap'][::-1]
-discrepancy_list = ['', '-gp', '-arma_2_2']
-load_list = ['', '-gp', '-armax']
-discrepancy_names = ['iid noise', 'GP(t)', 'ARMAX(2, 2)']
+discrepancy_list = ['', '-gp', '-gp-ov', '-arma_2_2']
+load_list = ['', '-gp', '-gp', '-armax']
+discrepancy_names = ['iid noise', 'GP(t)', 'GP(O, V)', 'ARMAX(2, 2)']
 
 try:
     which_model = sys.argv[1] 
@@ -32,7 +32,7 @@ info_id = 'model_%s' % which_model
 savedir = './fig/compare'
 if not os.path.isdir(savedir):
     os.makedirs(savedir)
-saveas = 'compare-' + info_id + '-prediction-error'
+saveas = 'compare-' + info_id + '-prediction-error-mean'
 
 error = []
 names = []
@@ -99,11 +99,11 @@ def row(axes, y, data, std=None):
             text += ' (' + fmat.format(std[i]).strip() + ')'
         plt.text(x + w / 2., y + h / 2., text, **targs)
 
-plt.figure(figsize=(8, 1.8))
+plt.figure(figsize=(9, 1.8))
 plt.subplots_adjust(0.005, 0.005, 0.995, 0.995)
 
 xperbox = 4.
-plt.xlim(-6.2, xperbox * 5)
+plt.xlim(-6.2, xperbox * 7)
 plt.ylim(0, 5)
 
 ax = plt.subplot(1, 1, 1)
@@ -113,8 +113,11 @@ for i, n in enumerate(names):
     plt.text(xperbox / 2. + xperbox * i, 3.5, n, **targs)
 plt.text(xperbox * 2, 4.5, 'Fitted with GP(t)', **targs)
 plt.plot([xperbox + 0.25, xperbox + xperbox * 2 - 0.25], [4.2]*2, c='#dddddd')
-plt.text(xperbox * 4, 4.5, 'Fitted with ARMAX(2, 2)', **targs)
+plt.text(xperbox * 4, 4.5, 'Fitted with GP(O, V)', **targs)
 plt.plot([xperbox * 3 + 0.25, xperbox * 3 + xperbox * 2 - 0.25], [4.2]*2,
+        c='#dddddd')
+plt.text(xperbox * 6, 4.5, 'Fitted with ARMAX(2, 2)', **targs)
+plt.plot([xperbox * 5 + 0.25, xperbox * 5 + xperbox * 2 - 0.25], [4.2]*2,
         c='#dddddd')
 
 label = 'Model %s' % which_model
