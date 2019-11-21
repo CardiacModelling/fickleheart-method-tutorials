@@ -15,7 +15,7 @@ error_measure = rmse
 model_list = ['A', 'B']
 predict_list = ['sinewave', 'staircase', 'ap'][::-1]
 discrepancy_list = ['', '-gp', '-gp-ov', '-arma_2_2']
-load_list = ['', '-gp', '-gp', '-armax']
+load_list = ['-iid', '-gp', '-gp', '-armax']
 discrepancy_names = ['iid noise', 'GP(t)', 'GP(O, V)', 'ARMAX(2, 2)']
 
 try:

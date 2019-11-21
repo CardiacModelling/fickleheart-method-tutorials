@@ -119,49 +119,63 @@ ppc_samples = pints.io.load_samples('%s/%s-chain_0.csv' % (loaddir, loadas))
 
 # Compute
 ppc_size = np.size(ppc_samples, axis=0)
-ppc = []
+ppc_mean = []
+ppc_var = []
+model_ppc_mean = []
+iid_ppc_mean = []
+iid_rmse = []
 model_rmse = []
 posterior_all = []
 
 for ind in np.random.choice(range(0, ppc_size), 100, replace=False):
     # Expecting these parameters can be used for simulation
-    params = ppc_samples[ind, :]
+    params = ppc_samples[ind, :-1]
+    sigma = ppc_samples[ind, -1]
 
     # Simulate
     current_valid_protocol = model.simulate(params, times)
 
-    ppc.append(current_valid_protocol)
+    ppc_mean.append(current_valid_protocol)
+    ppc_var.append(np.ones(times.shape) * (sigma ** 2))
+    model_ppc_mean.append(current_valid_protocol)
+    iid_ppc_mean.append(np.zeros(times.shape))
 
     # To compute E[rmse]
+    ppc_sample_sample = scipy_stats_norm(current_valid_protocol, sigma).rvs()
+    iid_rmse.append(rmse(data, ppc_sample_sample))
     model_rmse.append(rmse(data, current_valid_protocol))
 
     # To compute E[posterior]
-    posterior_all.append(logposterior(params))
+    posterior_all.append(logposterior(np.append(params, sigma)))
 
 # Compute E[rmse]
+expected_iid_rmse = np.mean(iid_rmse, axis=0)
 expected_model_rmse = np.mean(model_rmse, axis=0)
-np.savetxt('%s/%s-rmse.txt' % (savedir, saveas), [expected_model_rmse])
+np.savetxt('%s/%s-iid-rmse.txt' % (savedir, saveas), [expected_iid_rmse])
+np.savetxt('%s/%s-model-rmse.txt' % (savedir, saveas), [expected_model_rmse])
 
 # Compute E[posterior]
 expected_posterior = np.mean(posterior_all, axis=0)
 np.savetxt('%s/%s-posterior.txt' % (savedir, saveas), [expected_posterior])
 
 n_sd = scipy_stats_norm.ppf(1. - .05 / 2.)
-ppc_mean = np.mean(ppc, axis=0)
-var_1 = np.mean(np.power(ppc, 2), axis=0)
-var_2 = np.power(np.mean(ppc, axis=0), 2)
-ppc_sd = np.sqrt(var_1 - var_2)
-print(np.sum(np.abs(ppc_sd - np.std(ppc, axis=0))))
+
+# Model + iid
+ppc_mean_mean = np.mean(ppc_mean, axis=0)
+var1 = np.mean(ppc_var, axis=0)
+var2_1 = np.mean(np.power(ppc_mean, 2), axis=0)
+var2_2 = np.power(np.mean(ppc_mean, axis=0), 2)
+ppc_sd = np.sqrt(var1 + var2_1 - var2_2)
 
 fig, axes = plt.subplots(2, 1, sharex=True, figsize=(8, 6),
         gridspec_kw={'height_ratios': [1, 2]})
 axes[0].plot(times, voltage, c='#7f7f7f')
 axes[0].set_ylabel('Voltage (mV)')
 axes[1].plot(times, data, alpha=0.5, label='data')
-axes[1].plot(times, ppc_mean, label='Mean')
-axes[1].plot(times, ppc_mean + n_sd * ppc_sd, '-', color='blue', lw=0.5,
+axes[1].plot(times, ppc_mean_mean, label='Mean')
+axes[1].plot(times, ppc_mean_mean + n_sd * ppc_sd, '-', color='blue', lw=0.5,
         label='95% C.I.')
-axes[1].plot(times, ppc_mean - n_sd * ppc_sd, '-', color='blue', lw=0.5)
+axes[1].plot(times, ppc_mean_mean - n_sd * ppc_sd, '-', color='blue', lw=0.5)
 axes[1].legend()
 axes[1].set_ylabel('Current (pA)')
 axes[1].set_xlabel('Time (ms)')
@@ -170,7 +184,60 @@ plt.savefig('%s/%s-pp.png' % (savedir, saveas), dpi=200,
         bbox_inches='tight')
 plt.close()
 
+
+# Model only
+model_mean = np.mean(model_ppc_mean, axis=0)
+var1_1 = np.mean(np.power(model_ppc_mean, 2), axis=0)
+var1_2 = np.power(np.mean(model_ppc_mean, axis=0), 2)
+model_sd = np.sqrt(var1_1 - var1_2)
+print(np.sum(np.abs(model_sd - np.std(model_ppc_mean, axis=0))))
+
+fig, axes = plt.subplots(2, 1, sharex=True, figsize=(8, 6),
+        gridspec_kw={'height_ratios': [1, 2]})
+axes[0].plot(times, voltage, c='#7f7f7f')
+axes[0].set_ylabel('Voltage (mV)')
+axes[1].plot(times, data, alpha=0.5, label='data')
+axes[1].plot(times, model_mean, label='Mean')
+axes[1].plot(times, model_mean + n_sd * model_sd, '-', color='blue', lw=0.5,
+        label='95% C.I.')
+axes[1].plot(times, model_mean - n_sd * model_sd, '-', color='blue', lw=0.5)
+axes[1].legend()
+axes[1].set_ylabel('Current (pA)')
+axes[1].set_xlabel('Time (ms)')
+plt.subplots_adjust(hspace=0)
+plt.savefig('%s/%s-pp-model-only.png' % (savedir, saveas), dpi=200,
+        bbox_inches='tight')
+plt.close()
+
+
+# iid noise only
+iid_mean = np.mean(iid_ppc_mean, axis=0)
+var1 = np.mean(ppc_var, axis=0)
+iid_sd = np.sqrt(var1)
+
+fig, axes = plt.subplots(2, 1, sharex=True, figsize=(8, 6),
+        gridspec_kw={'height_ratios': [1, 2]})
+axes[0].plot(times, voltage, c='#7f7f7f')
+axes[0].set_ylabel('Voltage (mV)')
+axes[1].plot(times, data, alpha=0.5, label='data')
+axes[1].plot(times, iid_mean, label='Mean')
+axes[1].plot(times, iid_mean + n_sd * iid_sd, '-', color='blue', lw=0.5,
+        label='95% C.I.')
+axes[1].plot(times, iid_mean - n_sd * iid_sd, '-', color='blue', lw=0.5)
+axes[1].legend()
+axes[1].set_ylabel('Current (pA)')
+axes[1].set_xlabel('Time (ms)')
+plt.subplots_adjust(hspace=0)
+plt.savefig('%s/%s-pp-iid-only.png' % (savedir, saveas), dpi=200,
+        bbox_inches='tight')
+plt.close()
+
+
 # Save as text
 np.savetxt('%s/raw/%s-pp-time.txt' % (savedir, saveas), times)
-np.savetxt('%s/raw/%s-pp-mean.txt' % (savedir, saveas), ppc_mean)
-np.savetxt('%s/raw/%s-pp-sd.txt' % (savedir, saveas), ppc_sd)
+np.savetxt('%s/raw/%s-pp-iid-mean.txt' % (savedir, saveas), ppc_mean_mean)
+np.savetxt('%s/raw/%s-pp-iid-sd.txt' % (savedir, saveas), ppc_sd)
+np.savetxt('%s/raw/%s-pp-only-model-mean.txt' % (savedir, saveas), model_mean)
+np.savetxt('%s/raw/%s-pp-only-model-sd.txt' % (savedir, saveas), model_sd)
+np.savetxt('%s/raw/%s-pp-only-iid-mean.txt' % (savedir, saveas), iid_mean)
+np.savetxt('%s/raw/%s-pp-only-iid-sd.txt' % (savedir, saveas), iid_sd)

@@ -15,7 +15,7 @@ error_measure = rmse
 model_list = ['A', 'B']
 predict_list = ['sinewave', 'staircase', 'ap'][::-1]
 discrepancy_list = ['', '-gp', '-gp-ov', '-arma_2_2']
-load_list = ['', '-gp', '-gp', '-armax']
+load_list = ['-iid', '-gp', '-gp', '-armax']
 discrepancy_names = ['iid noise', 'GP(t)', 'GP(O, V)', 'ARMAX(2, 2)']
 
 try:
@@ -46,18 +46,14 @@ for j, which_predict in enumerate(predict_list):
 
         if j == 0:
             names.append('ODE model \n& ' + discrepancy_names[i])
+            names.append('ODE model\nonly')
 
         ppc_error = np.loadtxt('%s/%s%s-rmse.txt' % (loaddir, loadas, l))
         error[-1].append(ppc_error)
-        if d == '':
-            # ppc_model_mean = np.NaN
-            pass
-        else:
-            ppc_model_error = np.loadtxt('%s/%s-model-rmse.txt'
-                    % (loaddir, loadas))
-            error[-1].append(ppc_model_error)
-            if j == 0:
-                names.append('ODE model\nonly')
+
+        ppc_model_error = np.loadtxt('%s/%s-model-rmse.txt'
+                % (loaddir, loadas))
+        error[-1].append(ppc_model_error)
 
 # Plot
 cmap = matplotlib.cm.get_cmap('plasma_r')
@@ -83,11 +79,11 @@ def row(axes, y, data, std=None):
             text += ' (' + fmat.format(std[i]).strip() + ')'
         plt.text(x + w / 2., y + h / 2., text, **targs)
 
-plt.figure(figsize=(9, 1.8))
+plt.figure(figsize=(10, 1.8))
 plt.subplots_adjust(0.005, 0.005, 0.995, 0.995)
 
 xperbox = 4.
-plt.xlim(-6.2, xperbox * 7)
+plt.xlim(-6.2, xperbox * 8)
 plt.ylim(0, 5)
 
 ax = plt.subplot(1, 1, 1)
@@ -95,14 +91,14 @@ ax.set_xticks([])
 ax.set_yticks([])
 for i, n in enumerate(names):
     plt.text(xperbox / 2. + xperbox * i, 3.5, n, **targs)
-plt.text(xperbox * 2, 4.5, 'Fitted with GP(t)', **targs)
-plt.plot([xperbox + 0.25, xperbox + xperbox * 2 - 0.25], [4.2]*2, c='#dddddd')
-plt.text(xperbox * 4, 4.5, 'Fitted with GP(O, V)', **targs)
-plt.plot([xperbox * 3 + 0.25, xperbox * 3 + xperbox * 2 - 0.25], [4.2]*2,
-        c='#dddddd')
-plt.text(xperbox * 6, 4.5, 'Fitted with ARMAX(2, 2)', **targs)
-plt.plot([xperbox * 5 + 0.25, xperbox * 5 + xperbox * 2 - 0.25], [4.2]*2,
-        c='#dddddd')
+plt.text(xperbox * 1, 4.5, 'Fitted with iid noise', **targs)
+plt.plot([0.25, xperbox * 2 - 0.25], [4.2] * 2, c='#dddddd')
+plt.text(xperbox * 3, 4.5, 'Fitted with GP(t)', **targs)
+plt.plot([xperbox * 2 + 0.25, xperbox * 4 - 0.25], [4.2] * 2, c='#dddddd')
+plt.text(xperbox * 5, 4.5, 'Fitted with GP(O, V)', **targs)
+plt.plot([xperbox * 4 + 0.25, xperbox * 6 - 0.25], [4.2] * 2, c='#dddddd')
+plt.text(xperbox * 7, 4.5, 'Fitted with ARMAX(2, 2)', **targs)
+plt.plot([xperbox * 6 + 0.25, xperbox * 8 - 0.25], [4.2] * 2, c='#dddddd')
 
 label = 'Model %s' % which_model
 plt.text(-1.75, 4., label, {'weight': 'normal', 'size': 14}, **targs)
