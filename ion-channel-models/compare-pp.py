@@ -23,7 +23,7 @@ model_list = ['A', 'B', 'C']
 predict_list = ['sinewave', 'staircase', 'ap']
 discrepancy_list = ['', '-gp', '-gp-ov', '-arma_2_2']
 load_list = ['-iid', '-gp', '-gp', '-armax']
-discrepancy_names = ['iid noise', 'GP(t)', 'GP(O, V)', 'ARMAX(2, 2)']
+discrepancy_names = ['iid noise', 'GP(t)', 'GP(O, V)', 'ARMA(2, 2)']
 
 try:
     which_model = sys.argv[1] 
@@ -166,8 +166,8 @@ for i, d in enumerate(discrepancy_names):
     ppc_mean = ppc_disc_mean_list[i]
     ppc_sd = ppc_disc_sd_list[i]
     a = 0.5 #- i * 0.25
-    axes[i + 1].plot(times, data - ppc_model_mean_list[0], alpha=0.5,
-            c='#7f7f7f', label='Data - mean model (iid noise)')
+    axes[i + 1].plot(times, data - ppc_model_mean_list[i], alpha=0.5,
+            c='#7f7f7f', label='Data - ODE model')
     axes[i + 1].plot(times, ppc_mean, c='C' + str(i), alpha=0.9, lw=0.5,
             label=d + ' mean')
     axes[i + 1].fill_between(times,
