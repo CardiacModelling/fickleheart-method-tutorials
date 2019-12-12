@@ -17,9 +17,9 @@ n_bins = np.arange(20, 55, 0.05)
 
 plt.figure(figsize=(6, 3))
 plt.hist(sigma_A, bins=n_bins, alpha=0.75, density=True,
-        label='Model A (mean=%.2f)' % np.mean(sigma_A))
+        label='Model A (mean=%.2f pA)' % np.mean(sigma_A))
 plt.hist(sigma_B, bins=n_bins, alpha=0.75, density=True,
-        label='Model B (mean=%.2f)' % np.mean(sigma_B))
+        label='Model B (mean=%.2f pA)' % np.mean(sigma_B))
 plt.axvline(iid_noise_sigma, ls='--', c='#7f7f7f',
         label=r'True $\sigma$ in data')
 plt.xlim((24, 51))
