@@ -16,7 +16,7 @@ Posterior distributions with different discrepancy models.
 
 model_list = ['A', 'B', 'C']
 discrepancy_list = ['', '-gp', '-gp-ov', '-arma_2_2']
-discrepancy_names = ['iid noise', 'GP(t)', 'GP(O, V)', 'ARMAX(2, 2)']
+discrepancy_names = ['iid noise', 'GP(t)', 'GP(O, V)', 'ARMA(2, 2)']
 chain_to_use = [0, 0, 0, 0]
 
 try:
@@ -44,7 +44,7 @@ saveas = 'compare-' + info_id + '-sinewave-posteriors'
 # Load MCMC results
 all_samples = []
 lastniter = 25000
-thinning = 5
+thinning = 25
 for i, d in enumerate(discrepancy_list):
     loaddir = './out/mcmc-' + info_id + d
     loadas = info_id + '-sinewave'
@@ -59,7 +59,11 @@ for i, d in enumerate(discrepancy_list):
 bins = 40
 alpha = 0.5
 n_percentiles = None
-fig, axes = plt.subplots(int(np.ceil(n_parameters / 3)), 3, figsize=(10, 7))
+ymin = 0
+if which_model == 'A':
+    fig, axes = plt.subplots(int(np.ceil(n_parameters / 3)), 3, figsize=(10, 5))
+else:
+    fig, axes = plt.subplots(int(np.ceil(n_parameters / 3)), 3, figsize=(10, 7))
 for i in range(axes.size):
     ai, aj = int(i // 3), i % 3
     if not (i < n_parameters):
@@ -69,6 +73,7 @@ for i in range(axes.size):
     if aj == 0:
         axes[ai, aj].set_ylabel('Marginal\nposterior', fontsize=14)
     axes[ai, aj].ticklabel_format(axis='both', style='sci', scilimits=(-2, 3))
+    ymax = []
     for j, samples_j in enumerate(all_samples):
         if n_percentiles is None:
             xmin = np.min(samples_j[:, i])
@@ -79,11 +84,15 @@ for i in range(axes.size):
             xmax = np.percentile(samples_j[:, i],
                                  50 + n_percentiles / 2.)
         xbins = np.linspace(xmin, xmax, bins)
-        axes[ai, aj].hist(samples_j[:, i], bins=xbins, alpha=alpha,
+        n, _, _ = axes[ai, aj].hist(samples_j[:, i], bins=xbins, alpha=alpha,
                 density=True, label=discrepancy_names[j], color='C' + str(j))
-axes[0, 0].legend()
-#plt.subplots_adjust(hspace=0., wspace=0.)
-plt.tight_layout()
+        ymax = np.append(ymax, n)
+    ymax.sort()
+    axes[ai, aj].set_ylim((ymin, ymax[-3]))
+axes[0, 0].legend(loc='lower left', bbox_to_anchor=(0, 1.1), ncol=4,
+        bbox_transform=axes[0, 0].transAxes)
+plt.subplots_adjust(hspace=.6, wspace=.15)
+#plt.tight_layout()
 plt.savefig('%s/%s' % (savedir, saveas), dpi=200, bbox_inches='tight')
 plt.close('all')
 
