@@ -116,8 +116,24 @@ for i in range(len(axes)):
                     axes[i, j].axhline(renormalised_x0[i],
                         ls='--', c='r')
 for i in range(len(axes)):
-    axes[i, 0].set_ylabel(parameter_names[i], fontsize=32)
-    axes[-1, i].set_xlabel(parameter_names[i], fontsize=32)
+    if i == 0:
+        axes[i, 0].set_ylabel('Freq.', fontsize=48)
+    else:
+        ylim = axes[i, 0].get_ylim()
+        y_range = ylim[1] - ylim[0]
+        yticks = [ylim[0] + y_range * 0.1, ylim[1] - y_range * 0.1]
+        axes[i, 0].set_yticks(yticks)
+        yticklabels = ['%.2g' % y for y in yticks]
+        axes[i, 0].set_yticklabels(yticklabels, fontsize=24)
+        axes[i, 0].set_ylabel(parameter_names[i], fontsize=48)
+
+    xlim = axes[-1, i].get_xlim()
+    x_range = xlim[1] - xlim[0]
+    xticks = [xlim[0] + x_range * 0.1, xlim[1] - x_range * 0.1]
+    axes[-1, i].set_xticks(xticks)
+    xticklabels = ['%.2g' % x for x in xticks]
+    axes[-1, i].set_xticklabels(xticklabels, fontsize=24)
+    axes[-1, i].set_xlabel(parameter_names[i], fontsize=48)
 plt.tight_layout()
 plt.savefig('%s/%s-pairwise.png' % (savedir, saveas), bbox_inches='tight')
 plt.close('all')
@@ -172,9 +188,11 @@ else:
     for predicted_values in prediction[1:]:
         axes.plot(times, predicted_values, c=model_colour[0], alpha=0.2,
                 ls='--')
+if which_predict == 'hergblock':
+    axes.legend(loc=4, fontsize=14)
 axes.legend()
-axes.set_ylabel('Voltage (mV)')
-axes.set_xlabel('Time (ms)')
+axes.set_ylabel('Voltage (mV)', fontsize=18)
+axes.set_xlabel('Time (ms)', fontsize=18)
 plt.subplots_adjust(hspace=0)
 plt.savefig('%s/%s-pp.png' % (savedir, saveas), bbox_inches='tight')
 plt.close()
