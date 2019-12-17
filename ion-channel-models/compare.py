@@ -98,8 +98,8 @@ for p in cal_params_b:
     predictions_b.append(model_b.simulate(p, times))
 
 # Plot
-fig, axes = plt.subplots(2, 1, sharex=True, figsize=(10, 4),
-        gridspec_kw={'height_ratios': [1, 3]})
+fig, axes = plt.subplots(2, 1, sharex=True, figsize=(10, 3.5),
+        gridspec_kw={'height_ratios': [1, 2.5]})
 is_predict = ' prediction' if which_predict != 'sinewave' else ''
 sim_protocol = model_a.voltage(times)  # model_b should give the same thing
 axes[0].plot(times, sim_protocol, c='#7f7f7f')
@@ -133,9 +133,13 @@ for i_zoom, (w, h, loc) in enumerate(zoom.inset_setup):
             loc2=zoom.mark_setup[i_zoom][1], fc="none", lw=0.75, ec='k')
     pp.set_fill(True); pp.set_facecolor("#f0f0f0")
 
-axes[1].legend()
+if which_predict == 'sinewave':
+    axes[1].legend(loc='lower left', bbox_to_anchor=(0, 1.02), ncol=3,
+            bbox_transform=axes[0].transAxes)
 axes[1].set_ylabel('Current (pA)', fontsize=16)
 axes[1].set_xlabel('Time (ms)', fontsize=16)
+for i in range(2):
+    axes[i].set_xlim((times[0], times[-1]))
 
 plt.subplots_adjust(hspace=0)
 plt.savefig('%s/%s' % (savedir, saveas), bbox_inches='tight', dpi=200)
