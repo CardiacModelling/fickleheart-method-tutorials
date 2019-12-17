@@ -101,31 +101,70 @@ for i, (d, l) in enumerate(zip(discrepancy_list, load_list)):
 n_sd = scipy_stats_norm.ppf(1. - .05 / 2.)
 
 # Plot model + discrepancy
-fig, axes = plt.subplots(len(discrepancy_list) + 1, 1, sharex=True,
-        figsize=(8, 8),
-        gridspec_kw={'height_ratios': [1] + [2] * len(discrepancy_list)})
-axes[0].plot(times, voltage, c='#7f7f7f')
-axes[0].set_ylabel('Voltage (mV)')
-axes[0].set_title('ODE model with discrepancy', loc='left')
-for i, d in enumerate(discrepancy_names):
-    ppc_mean = ppc_mean_list[i]
-    ppc_sd = ppc_sd_list[i]
-    a = 0.5 #- i * 0.25
-    axes[i + 1].plot(times, data, alpha=0.5, c='#7f7f7f', label='Data')
-    axes[i + 1].plot(times, ppc_mean, c='C' + str(i), alpha=0.9, lw=0.5,
-            label=d + ' mean')
-    axes[i + 1].fill_between(times,
-            ppc_mean - n_sd * ppc_sd,
-            ppc_mean + n_sd * ppc_sd,
-            facecolor='C' + str(i), linewidth=0, alpha=a,
-            label=d + ' 95% C.I.')
-    axes[i + 1].legend()
-    axes[i + 1].set_ylabel('Current (pA)')
-    axes[i + 1].set_ylim(zoom)
-axes[-1].set_xlabel('Time (ms)')
-plt.subplots_adjust(hspace=0)
-plt.savefig('%s/%s' % (savedir, saveas), dpi=200, bbox_inches='tight')
-plt.close()
+if (which_model == 'A') and (which_predict in ['sinewave', 'staircase']):
+    fig, axes = plt.subplots(len(discrepancy_list) + 1, 1, sharex=True,
+            figsize=(8, 5),
+            gridspec_kw={'height_ratios': [1] + [2] * len(discrepancy_list)})
+    axes[0].plot(times, voltage, c='#7f7f7f')
+    axes[0].set_ylabel('Voltage\n(mV)')
+    axes[0].set_title('ODE model with discrepancy', loc='left')
+    axes[0].set_xlim((times[0], times[-1]))
+    for i, d in enumerate(discrepancy_names):
+        ppc_mean = ppc_mean_list[i]
+        ppc_sd = ppc_sd_list[i]
+        a = 0.5 #- i * 0.25
+        axes[i + 1].plot(times, data, alpha=0.5, c='#7f7f7f', label='Data')
+        axes[i + 1].plot(times, ppc_mean, c='C' + str(i), alpha=0.9, lw=0.5,
+                label=d)# + ' mean')
+        axes[i + 1].fill_between(times,
+                ppc_mean - n_sd * ppc_sd,
+                ppc_mean + n_sd * ppc_sd,
+                facecolor='C' + str(i), linewidth=0, alpha=a,)
+                #label=d + ' 95% C.I.')
+        if which_predict in ['sinewave']:
+            axes[i + 1].legend(loc=3)
+        elif which_predict in ['staircase']:
+            axes[i + 1].legend(loc=2, ncol=2)
+        axes[i + 1].set_ylabel('Current\n(pA)')
+        axes[i + 1].set_ylim(zoom)
+        axes[i + 1].set_xlim((times[0], times[-1]))
+    # Add arrows...
+    if which_predict == 'staircase':
+        for i in range(1, 5):
+            axes[i].annotate("", xy=(2500, 200), xytext=(3250, 600),
+                    arrowprops=dict(arrowstyle="->", color='#cb181d'))
+        axes[2].annotate("", xy=(7550, 500), xytext=(8300, 900),
+                arrowprops=dict(arrowstyle="->", color='#0570b0'))
+    axes[-1].set_xlabel('Time (ms)')
+    plt.subplots_adjust(hspace=0)
+    plt.savefig('%s/%s' % (savedir, saveas), dpi=200, bbox_inches='tight')
+    plt.close()
+else:
+    fig, axes = plt.subplots(len(discrepancy_list) + 1, 1, sharex=True,
+            figsize=(8, 8),
+            gridspec_kw={'height_ratios': [1] + [2] * len(discrepancy_list)})
+    axes[0].plot(times, voltage, c='#7f7f7f')
+    axes[0].set_ylabel('Voltage (mV)')
+    axes[0].set_title('ODE model with discrepancy', loc='left')
+    for i, d in enumerate(discrepancy_names):
+        ppc_mean = ppc_mean_list[i]
+        ppc_sd = ppc_sd_list[i]
+        a = 0.5 #- i * 0.25
+        axes[i + 1].plot(times, data, alpha=0.5, c='#7f7f7f', label='Data')
+        axes[i + 1].plot(times, ppc_mean, c='C' + str(i), alpha=0.9, lw=0.5,
+                label=d + ' mean')
+        axes[i + 1].fill_between(times,
+                ppc_mean - n_sd * ppc_sd,
+                ppc_mean + n_sd * ppc_sd,
+                facecolor='C' + str(i), linewidth=0, alpha=a,
+                label=d + ' 95% C.I.')
+        axes[i + 1].legend()
+        axes[i + 1].set_ylabel('Current (pA)')
+        axes[i + 1].set_ylim(zoom)
+    axes[-1].set_xlabel('Time (ms)')
+    plt.subplots_adjust(hspace=0)
+    plt.savefig('%s/%s' % (savedir, saveas), dpi=200, bbox_inches='tight')
+    plt.close()
 
 # Plot model only
 fig, axes = plt.subplots(len(discrepancy_list) + 1, 1, sharex=True,
