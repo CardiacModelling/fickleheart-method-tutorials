@@ -133,6 +133,8 @@ if (which_model == 'A') and (which_predict in ['sinewave', 'staircase']):
         for i in range(1, 5):
             axes[i].annotate("", xy=(2500, 200), xytext=(3250, 600),
                     arrowprops=dict(arrowstyle="->", color='#cb181d'))
+            axes[i].annotate("", xy=(14750, 200), xytext=(14750, 1050),
+                    arrowprops=dict(arrowstyle="->", color='#cb181d'))
         axes[2].annotate("", xy=(7550, 500), xytext=(8300, 900),
                 arrowprops=dict(arrowstyle="->", color='#0570b0'))
     axes[-1].set_xlabel('Time (ms)')
