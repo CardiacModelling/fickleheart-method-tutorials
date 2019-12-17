@@ -16,7 +16,7 @@ model_list = ['A', 'B']
 predict_list = ['sinewave', 'staircase', 'ap'][::-1]
 discrepancy_list = ['', '-gp', '-gp-ov', '-arma_2_2']
 load_list = ['-iid', '-gp', '-gp', '-armax']
-discrepancy_names = ['iid noise', 'GP(t)', 'GP(O, V)', 'ARMAX(2, 2)']
+discrepancy_names = ['iid noise', 'GP(t)', 'GP(O, V)', 'ARMA(2, 2)']
 
 try:
     which_model = sys.argv[1] 
@@ -97,7 +97,7 @@ plt.text(xperbox * 3, 4.5, 'Fitted with GP(t)', **targs)
 plt.plot([xperbox * 2 + 0.25, xperbox * 4 - 0.25], [4.2] * 2, c='#dddddd')
 plt.text(xperbox * 5, 4.5, 'Fitted with GP(O, V)', **targs)
 plt.plot([xperbox * 4 + 0.25, xperbox * 6 - 0.25], [4.2] * 2, c='#dddddd')
-plt.text(xperbox * 7, 4.5, 'Fitted with ARMAX(2, 2)', **targs)
+plt.text(xperbox * 7, 4.5, 'Fitted with ARMA(2, 2)', **targs)
 plt.plot([xperbox * 6 + 0.25, xperbox * 8 - 0.25], [4.2] * 2, c='#dddddd')
 
 label = 'Model %s' % which_model
