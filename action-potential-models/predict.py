@@ -18,8 +18,8 @@ Run prediction.
 model_list = ['tnnp-2004-w', 'fink-2008', 'tnnp-2004']
 cal_list = ['stim1hz', 'stim2hz', 'randstim']
 predict_list = ['stim1hz', 'stim2hz', 'randstim', 'hergblock']
-data_colour = ['#3182bd', '#7b3294']
-model_colour = ['#fd8d3c', '#d7191c']
+data_colour = ['#7f7f7f']  # ['#3182bd', '#7b3294']
+model_colour = ['#2b8cbe']  # ['#fd8d3c', '#d7191c']
 
 try:
     which_model = sys.argv[1]
@@ -84,11 +84,11 @@ cal_param = np.loadtxt(param_file)
 # Predict
 if which_predict == 'hergblock':
     prediction = protocol.hergblock_simulate(model,
-            cal_param, times)[[0, 3]]
-    data = data.T[[0, 3]]
+            cal_param, times)[[3]]
+    data = data.T[[3]]
     legend = [' 0% block', ' 25% block', ' 50% block', ' 75% block',
             ' 100% block']
-    legend = [legend[0], legend[3]]
+    legend = [legend[3]]
 else:
     prediction = [model.simulate(cal_param, times)]
     data = [data]
@@ -99,7 +99,7 @@ figsize = (5, 3) if which_cal != which_predict else (10, 3)
 fig, axes = plt.subplots(1, 1, sharex=True, figsize=figsize)
 is_predict = 'Prediction' if which_cal != which_predict else 'Fitted model'
 for i, (d, p) in enumerate(zip(data, prediction)):
-    axes.plot(times, d, c=data_colour[i], alpha=0.8, label='Data' + legend[i])
+    axes.plot(times, d, c=data_colour[i], alpha=0.5, label='Data' + legend[i])
     axes.plot(times, p, c=model_colour[i], ls='--', lw=1.5,
             label=is_predict + legend[i])
 if which_predict == 'hergblock':

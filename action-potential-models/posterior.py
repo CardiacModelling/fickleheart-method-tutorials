@@ -21,8 +21,8 @@ Run posterior prediction.
 model_list = ['tnnp-2004-w', 'fink-2008', 'tnnp-2004']
 cal_list = ['stim1hz', 'stim2hz', 'randstim']
 predict_list = ['stim1hz', 'stim2hz', 'randstim', 'hergblock']
-data_colour = ['#3182bd', '#7b3294']
-model_colour = ['#fd8d3c', '#d7191c']
+data_colour = ['#7f7f7f']  # ['#3182bd', '#7b3294']
+model_colour = ['#2b8cbe']  # ['#fd8d3c', '#d7191c']
 
 try:
     which_model = sys.argv[1]
@@ -138,6 +138,38 @@ plt.tight_layout()
 plt.savefig('%s/%s-pairwise.png' % (savedir, saveas), bbox_inches='tight')
 plt.close('all')
 
+# Histograms
+bins = 40
+alpha = 0.5
+n_percentiles = None
+fig, axes = plt.subplots(3, 3, figsize=(10, 5))
+for i in range(axes.size):
+    ai, aj = int(i // 3), i % 3
+    if not (i < 9):
+        axes[ai, aj].axis('off')
+        continue
+    axes[ai, aj].set_xlabel(parameter_names[i], fontsize=14)
+    if aj == 0:
+        axes[ai, aj].set_ylabel('Marginal\nposterior', fontsize=14)
+    axes[ai, aj].ticklabel_format(axis='both', style='sci', scilimits=(-2, 3))
+    if n_percentiles is None:
+        xmin = np.min(renormalised_chain[:, i])
+        xmax = np.max(renormalised_chain[:, i])
+    else:
+        xmin = np.percentile(renormalised_chain[:, i],
+                             50 - n_percentiles / 2.)
+        xmax = np.percentile(renormalised_chain[:, i],
+                             50 + n_percentiles / 2.)
+    xbins = np.linspace(xmin, xmax, bins)
+    axes[ai, aj].hist(renormalised_chain[:, i], bins=xbins, alpha=alpha,
+            density=True, color='C0')
+    axes[ai, aj].axvline(renormalised_x0[i], ls='--', c='r')
+plt.subplots_adjust(hspace=.6, wspace=.175)
+#plt.tight_layout()
+plt.savefig('%s/%s-hist' % (savedir, saveas), dpi=200, bbox_inches='tight')
+plt.savefig('%s/%s-hist.pdf' % (savedir, saveas), bbox_inches='tight')
+plt.close('all')
+
 # Posterior predictions
 # Load data
 data_dir = './data'
@@ -147,7 +179,7 @@ data = np.loadtxt(data_dir + '/' + data_file_name,
 times = data[:, 0]
 data = data[:, 1:]
 if which_predict == 'hergblock':
-    data = data.T[[0, 3]]
+    data = data.T[[3]]
 else:
     data = [data]
 
@@ -157,12 +189,12 @@ if which_predict == 'hergblock':
     prediction = []
     for params in chains[0][::thinning, :model.n_parameters()]:
         prediction.append(protocol.hergblock_simulate(model, params, times)
-                [[0, 3]])
+                [[3]])
     mean_values = np.mean(prediction, axis=0)
 
     legend = [' 0% block', ' 25% block', ' 50% block', ' 75% block',
             ' 100% block']
-    legend = [legend[0], legend[3]]
+    legend = [legend[3]]
 else:
     prediction = []
     for params in chains[0][::thinning, :model.n_parameters()]:
@@ -171,10 +203,10 @@ else:
     legend = ['']
 
 # Plot
-fig, axes = plt.subplots(1, 1, sharex=True, figsize=(8, 4))
+fig, axes = plt.subplots(1, 1, sharex=True, figsize=(5, 3))
 is_predict = 'Prediction' if which_cal != which_predict else 'Fitted model'
 for i, d in enumerate(data):
-    axes.plot(times, d, c=data_colour[i], alpha=0.9, label='Data' + legend[i])
+    axes.plot(times, d, c=data_colour[i], alpha=0.5, label='Data' + legend[i])
 if which_predict == 'hergblock':
     for i, p in enumerate(prediction[0]):
         axes.plot(times, p, c=model_colour[i], alpha=0.5, ls='--',
@@ -189,10 +221,10 @@ else:
         axes.plot(times, predicted_values, c=model_colour[0], alpha=0.2,
                 ls='--')
 if which_predict == 'hergblock':
-    axes.legend(loc=4, fontsize=14)
+    axes.legend(loc=4, fontsize=12)
 axes.legend()
-axes.set_ylabel('Voltage (mV)', fontsize=18)
-axes.set_xlabel('Time (ms)', fontsize=18)
+axes.set_ylabel('Voltage (mV)', fontsize=12)
+axes.set_xlabel('Time (ms)', fontsize=12)
 plt.subplots_adjust(hspace=0)
-plt.savefig('%s/%s-pp.png' % (savedir, saveas), bbox_inches='tight')
+plt.savefig('%s/%s-pp.png' % (savedir, saveas), bbox_inches='tight', dpi=300)
 plt.close()
