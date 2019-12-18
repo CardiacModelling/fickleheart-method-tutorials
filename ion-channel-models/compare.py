@@ -104,11 +104,11 @@ is_predict = ' prediction' if which_predict != 'sinewave' else ''
 sim_protocol = model_a.voltage(times)  # model_b should give the same thing
 axes[0].plot(times, sim_protocol, c='#7f7f7f')
 axes[0].set_ylabel('Voltage\n(mV)', fontsize=16)
-axes[1].plot(times, data, alpha=0.5, label='Data')
+axes[1].plot(times, data, alpha=0.5, c='#7f7f7f', label='Data')
 for i, p in zip(fix_idx, predictions_a):
-    axes[1].plot(times, p, label='Model A' + is_predict)
+    axes[1].plot(times, p, c='C0', label='Model A' + is_predict)
 for i, p in zip(fix_idx, predictions_b):
-    axes[1].plot(times, p, label='Model B' + is_predict)
+    axes[1].plot(times, p, c='C1', label='Model B' + is_predict)
 
 # Zooms
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes, mark_inset
@@ -118,11 +118,11 @@ axes[1].set_ylim(zoom.set_ylim)
 for i_zoom, (w, h, loc) in enumerate(zoom.inset_setup):
     axins = inset_axes(axes[1], width=w, height=h, loc=loc,
             axes_kwargs={"facecolor" : "#f0f0f0"})
-    axins.plot(times, data, alpha=0.5)
+    axins.plot(times, data, c='#7f7f7f', alpha=0.5)
     for i, p in zip(fix_idx, predictions_a):
-        axins.plot(times, p)
+        axins.plot(times, p, c='C0')
     for i, p in zip(fix_idx, predictions_b):
-        axins.plot(times, p)
+        axins.plot(times, p, c='C1')
     axins.set_xlim(zoom.set_xlim_ins[i_zoom])
     axins.set_ylim(zoom.set_ylim_ins[i_zoom])
     #axins.yaxis.get_major_locator().set_params(nbins=3)
