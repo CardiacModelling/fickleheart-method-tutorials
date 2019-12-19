@@ -8,6 +8,7 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes, mark_inset
+from scipy.optimize import minimize
 
 import model as m
 import protocol as p
@@ -78,11 +79,16 @@ plot_currents = [c for i, c in enumerate(currents) if i not in take_out]
 for i, c in enumerate(plot_parameters):
     n = c[:-2]
     gx, gy = i % 3, int(i // 3)
+    # Re-scale
+    def f(x):
+        return np.sum((currents_tnnp[n] - x * currents_fink[n]) ** 2)
+    x = minimize(f, 10, method='Nelder-Mead', tol=1e-6).x[0]
+    # Plot
     ax = fig.add_subplot(grid[gx + 1, gy])
     ax.plot(times, currents_tnnp[n], c='#2b8cbe', lw=2, label='Model T')
     ax.fill_between(times, 0, currents_tnnp[n], color='#a6bddb', alpha=0.5)
-    ax.plot(times, currents_fink[n], c='#2ca25f', lw=2, label='Model F')
-    ax.fill_between(times, 0, currents_fink[n], color='#a6dbbd', alpha=0.5)
+    ax.plot(times, x * currents_fink[n], c='#2ca25f', lw=2, label='Model F')
+    ax.fill_between(times, 0, x * currents_fink[n], color='#a6dbbd', alpha=0.5)
     if i == 0:
         ax.legend(bbox_to_anchor=(0.6, 0.9), frameon=False, fontsize=13)
     # Change y-ticks
@@ -119,11 +125,11 @@ for i, c in enumerate(plot_parameters):
         axins.plot(times, currents_tnnp[n], c='#2b8cbe', lw=2)
         axins.fill_between(times, 0, currents_tnnp[n], color='#a6bddb',
                 alpha=0.5)
-        axins.plot(times, currents_fink[n], c='#2ca25f', lw=2)
-        axins.fill_between(times, 0, currents_fink[n], color='#a6dbbd',
+        axins.plot(times, x * currents_fink[n], c='#2ca25f', lw=2)
+        axins.fill_between(times, 0, x * currents_fink[n], color='#a6dbbd',
                 alpha=0.5)
         axins.set_xlim([45, 100])
-        axins.set_ylim([-0.2, 10.5])
+        axins.set_ylim([-0.2, 6.5])
         #axins.yaxis.get_major_locator().set_params(nbins=3)
         #axins.xaxis.get_major_locator().set_params(nbins=3)
         axins.set_xticklabels([])
