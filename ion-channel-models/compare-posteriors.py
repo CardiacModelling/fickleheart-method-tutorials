@@ -7,6 +7,7 @@ import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes, mark_inset
 import pints.io
 import pints.plot
 
@@ -55,25 +56,37 @@ for i, d in enumerate(discrepancy_list):
     samples = samples[-lastniter::thinning, :]
     all_samples.append(samples)
 
+subax_setup = [[0, 0, 0.4, 0.25], [0.6, 0, 0.4, 0.25], (0, 0.75, 0.4, 0.25),
+            (0.6, 0.75, 0.4, 0.25)]
+
 # Histograms
 bins = 40
 alpha = 0.5
 n_percentiles = None
-ymin = 0
 if which_model == 'A':
-    fig, axes = plt.subplots(int(np.ceil(n_parameters / 3)), 3, figsize=(10, 5))
+    fig, axes = plt.subplots(int(np.ceil(n_parameters / 3)), 3,
+            figsize=(10, 5))
 else:
-    fig, axes = plt.subplots(int(np.ceil(n_parameters / 3)), 3, figsize=(10, 7))
+    fig, axes = plt.subplots(int(np.ceil(n_parameters / 3)), 3,
+            figsize=(10, 9))
+plt.subplots_adjust(hspace=.6, wspace=.15)
 for i in range(axes.size):
     ai, aj = int(i // 3), i % 3
     if not (i < n_parameters):
         axes[ai, aj].axis('off')
         continue
-    axes[ai, aj].set_xlabel(info.parameters_nice[i], fontsize=14)
-    if aj == 0:
-        axes[ai, aj].set_ylabel('Marginal\nposterior', fontsize=14)
+    if which_model == 'A':
+        axes[ai, aj].set_xlabel(info.parameters_nice[i], fontsize=14)
+        if aj == 0:
+            axes[ai, aj].set_ylabel('Marginal\nposterior', fontsize=14)
+    else:
+        axes[ai, aj].text(0.5, -0.3, info.parameters_nice[i], fontsize=14,
+                ha='center', va='center', transform=axes[ai, aj].transAxes)
+        if aj == 0:
+            axes[ai, aj].text(-0.3, 0.5, 'Marginal\nposterior', fontsize=14,
+                    ha='center', va='center', transform=axes[ai, aj].transAxes,
+                    rotation=90)
     axes[ai, aj].ticklabel_format(axis='both', style='sci', scilimits=(-2, 3))
-    ymax = []
     for j, samples_j in enumerate(all_samples):
         if n_percentiles is None:
             xmin = np.min(samples_j[:, i])
@@ -84,15 +97,36 @@ for i in range(axes.size):
             xmax = np.percentile(samples_j[:, i],
                                  50 + n_percentiles / 2.)
         xbins = np.linspace(xmin, xmax, bins)
-        n, _, _ = axes[ai, aj].hist(samples_j[:, i], bins=xbins, alpha=alpha,
-                density=True, label=discrepancy_names[j], color='C' + str(j))
-        ymax = np.append(ymax, n)
-    ymax.sort()
-    axes[ai, aj].set_ylim((ymin, ymax[-3]))
+        if which_model == 'B' and i in [1, 5, 6]:
+            # Zooms
+            x, y, w, h = subax_setup[j]
+            xc, yc = x + w, y + h
+            dis = axes[ai, aj].transAxes
+            x, y = dis.transform((x, y))
+            xc, yc = dis.transform((xc, yc))
+            inv = fig.transFigure.inverted()
+            xn, yn = inv.transform((x, y))
+            xc, yc = inv.transform((xc, yc))
+            wn = xc - xn
+            hn = yc - yn
+            ax = fig.add_axes([xn, yn, wn, hn])
+            ax.hist(samples_j[:, i], bins=xbins, alpha=alpha,
+                    density=True, color='C' + str(j))
+            ax.ticklabel_format(axis='both', style='sci', scilimits=(-2, 3))
+            axes[ai, aj].spines["top"].set_visible(False)
+            axes[ai, aj].spines["left"].set_visible(False)
+            axes[ai, aj].spines["right"].set_visible(False)
+            axes[ai, aj].spines["bottom"].set_visible(False)
+            axes[ai, aj].set_xticks([])
+            axes[ai, aj].set_yticks([])
+            axes[ai, aj].set_xticklabels([])
+            axes[ai, aj].set_yticklabels([])
+        else:
+            axes[ai, aj].hist(samples_j[:, i], bins=xbins, alpha=alpha,
+                    density=True, label=discrepancy_names[j],
+                    color='C' + str(j))
 axes[0, 0].legend(loc='lower left', bbox_to_anchor=(0, 1.1), ncol=4,
         bbox_transform=axes[0, 0].transAxes)
-plt.subplots_adjust(hspace=.6, wspace=.15)
-#plt.tight_layout()
 plt.savefig('%s/%s' % (savedir, saveas), dpi=200, bbox_inches='tight')
 plt.close('all')
 
