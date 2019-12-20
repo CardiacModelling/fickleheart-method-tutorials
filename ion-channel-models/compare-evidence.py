@@ -60,6 +60,8 @@ targs = {
 }
 
 def row(axes, y, data, std=None):
+    data = np.copy(data)
+    data = data - np.max(data)
     colour = np.array(data) - np.min(data)
     colour /= 2. * np.max(colour)
     colour = np.abs(0.5 - colour)
