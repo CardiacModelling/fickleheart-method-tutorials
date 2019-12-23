@@ -152,6 +152,9 @@ logposterior = pints.LogPosterior(loglikelihood, logprior)
 
 # Load MCMC results
 ppc_samples = pints.io.load_samples('%s/%s-chain_0.csv' % (loaddir, loadas))
+lastniter = 25000
+thinning = 5
+ppc_samples = ppc_samples[-lastniter::thinning, :]
 
 
 # Bayesian prediction of ARMAX Based on the variance identity
@@ -172,7 +175,7 @@ armax_rmse = []
 model_rmse = []
 posterior_all = []
 
-for ind in np.random.choice(range(0, ppc_size), 100, replace=False):
+for ind in np.random.choice(range(0, ppc_size), 1000, replace=False):
     ode_params = np.copy(ppc_samples[ind, :-n_arama])
     ode_sol = model.simulate(ode_params, times)
 
@@ -264,6 +267,14 @@ plt.subplots_adjust(hspace=0)
 plt.savefig('%s/%s-pp-model-only.png' % (savedir, saveas), dpi=200,
         bbox_inches='tight')
 plt.close()
+
+for ii, i in enumerate(np.linspace(0, len(times) - 1, 10)):
+    i = int(i)
+    plt.hist(np.asarray(model_mean)[:, i])
+    plt.xlabel('model output at time %s ms' % times[i])
+    plt.ylabel('Frequency')
+    plt.savefig('%s/%s-pp-hist-%s.png' % (savedir, saveas, ii))
+    plt.close()
 
 # ARMAX only
 armax_ppc_mean = np.mean(armax_only_mean, axis=0)
