@@ -22,14 +22,15 @@ $ pip install --upgrade pip
 $ pip install .
 ```
 
-## Ion channel model example
-
-See [ion-channel-models](./ion-channel-models).
-
 
 ## Action potential model example
 
 See [action-potential-models](./action-potential-models).
+
+
+## Ion channel model example
+
+See [ion-channel-models](./ion-channel-models).
 
 
 ## Acknowledging this work
