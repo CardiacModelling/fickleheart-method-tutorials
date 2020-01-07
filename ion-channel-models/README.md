@@ -43,6 +43,15 @@ Before calibration, run `generate-data.py` to generate synthetic data with i.i.d
 
 ### 4. Calibration with discrepancy model: ARMA(p,q)
 1. Run `mcmc-arma.py` with arguments `[which_model]`, `[arma_p]`, and `[arma_q]` to run MCMC for the specified model, where `[arma_p]` and `[arma_q]` are integers specifying the order of the AR and MA models, respectively.
+We use ARMA(2,2) model throughout the paper.
+
+### 5. Run posterior predictive
+1. Run `posterior.py` with arguments `[which_model]` and `[which_predict]` to generate posterior predictive with i.i.d. noise assumption. Alternatively run `posterior.sh`.
+2. Run `posterior-gp.py` with arguments `[which_model]` and `[which_predict]` to generate posterior predictive with GP(t) discrepancy model. Alternatively run `posterior-gp.sh`.
+3. Run `posterior-gp-ov.py` with arguments `[which_model]` and `[which_predict]`, together with a `-ov` flag, to generate posterior predictive with GP(O,V) discrepancy model. Alternatively run `posterior-gp-ov.sh`.
+4. Run `posterior-gp-ov.py` with arguments `[which_model]`, `[arma_p]`, and `[arma_q]` to generate posterior predictive with ARMA(p,q) discrepancy model. Alternatively run `posterior-arma.sh`.
+
+Alternatively, run `posterior-all.sh` to generate all the posterior predictive for all models in one go.
 
 ### Output
 
@@ -61,5 +70,6 @@ Before calibration, run `generate-data.py` to generate synthetic data with i.i.d
 - `test-models.py`: Simple test for default model setting and forward model simulations.
 
 ### Others
-- `fit-gp-v.py`, `mcmc-gp-v.py`: Run calibration with discrepancy model GP(t,V), which is not shown in the paper.
-- `mcmc-arma.py`: Run calibration with discrepancy model ARMA(p,q) model with the invertibility condition, which is not shown in the paper.
+- `fit-gp-v.py`, `mcmc-gp-v.py`: Run calibration with GP(V) discrepancy model, which is not shown in the paper.
+- `fit-gp-tv.py`, `mcmc-gp-tv.py`, `posterior-gp-tv.py`: Run calibration and posterior predictive with GP(t,V) discrepancy model, which is not shown in the paper.
+- `mcmc-arma-invertible.py`: Run calibration with ARMA(p,q) discrepancy model and the invertibility condition, which is not shown in the paper.
