@@ -1,6 +1,6 @@
-# Calibration methods tutorials (Fickle Heart 2019)
+# Model calibration with discrepancy 
 
-This repo contains the code for reproducing the results in the tutorials in the Fickle Heart 2019 calibration method paper. 
+This repo contains the code for reproducing the results in the examples in the paper "*Considering discrepancy when calibrating a mechanistic electrophysiology model*" by Lei, Ghosh, Whittaker, Aboelkassem, Beattie, Cantwell, Delhaas, Houston, Novaes, Panfilov, Pathmanathan, Riabiz, dos Santos, Worden, Mirams, and Wilkinson.
 
 ### Requirements
 
