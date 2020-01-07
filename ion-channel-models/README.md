@@ -10,6 +10,8 @@ We are interested in selecting the model that 'best describe' the ground truth (
 - Model B (candidate model): Oehmen et al. 2002 model.
 - Model C (ground truth model): Di Veroli et al. 2013 model (temperature at 295K; parameters from fitting to Beattie et al. 2018 cell \#5 data).
 
+![Model structures](mmt-model-files/model-structure.png)
+
 ### Use of protocol
 
 In this tutorial, we split our protocols into calibration and validation uses.
