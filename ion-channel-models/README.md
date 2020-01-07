@@ -33,7 +33,9 @@ Before calibration, run `generate-data.py` to generate synthetic data with i.i.d
 1. Run `fit.py` with argument `[which_model]` to calibrate the specified model. Alternatively run `fit-all.sh`.
 2. Run `predict.py` with arguments `[which_model]` and `[which_predict]` to predict the specified (protocol) data (in `./data`) with the specified model and calibrated model parameters (in `./out`). Alternatively run `predict-all.sh`.
 3. Run `compare.py` with argument `[which_predict]` to compare the predictions of the specified (protocol) data (in `./data`) from the candidate models with the calibrated model parameters (in `./out`). Alternatively run `compare-all.sh`.
-4. Run `mcmc.py` with argument `[which_model]` to run MCMC for the specified model. Alternatively run `mcmc-all.sh`.
+4. Run `plot-residual-noise.py` to plot the autocorrelation of the calibrated models.
+5. Run `mcmc.py` with argument `[which_model]` to run MCMC for the specified model. Alternatively run `mcmc-all.sh`.
+6. Run `plot-iid-sigma.py` to plot the marginal posteriors of the i.i.d. noise parameter ![sigma](http://latex.codecogs.com/svg.latex?\sigma).
 
 ### 2. Calibration with discrepancy model: GP(t)
 1. Run `fit-gp.py` with argument `[which_model]` to calibrate the specified model.
