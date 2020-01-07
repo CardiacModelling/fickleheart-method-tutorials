@@ -27,9 +27,9 @@ Note that here we do not have validation protocol, as to emphasise the importanc
 
 ### Arguments
 
-- `[which_model]` can be one of `tnnp-2004-w`, `fink-2008`
-- `[which_data]` and `[which_calibration]` can be one of `stim1hz`, `randstim`
-- `[which_predict]` can be one of `stim1hz`, `randstim`, `stim2hz`, `hergblock`, `current`
+- `[which_model]` can be one of `tnnp-2004-w`, `fink-2008`.
+- `[which_data]` and `[which_calibration]` can be one of `stim1hz`, `randstim`.
+- `[which_predict]` can be one of `stim1hz`, `randstim`, `stim2hz`, `hergblock`, `current`.
 
 ## Run the tutorial
 
@@ -38,10 +38,6 @@ Note that here we do not have validation protocol, as to emphasise the importanc
 3. Run `predict.py` with arguments `[which_model]`, `[which_calibration]` and `[which_predict]` to predict the specified (protocol) data (in `./data`) with the specified model and calibrated model parameters (in `./out`). Alternatively run `predict-all.sh`.
 4. Run `mcmc.py` with arguments `[which_model]` and `[which_data]` to run MCMC for the specified model with the specified (protocol) data from `./data`. Alternatively run `mcmc-all.sh`.
 5. Run `posterior.py` with arguments `[which_model]`, `[which_calibration]` and `[which_predict]` to create posterior predictives for the specified (protocol) data (in `./data`) with the specified model and MCMC samples of the model parameters (in `./out`). Alternatively run `posterior-all.sh`.
-
-### TODO
-
-- For #2 above, maybe also try history matching type of method? But this probably will not make a difference.
 
 ### Output
 
@@ -52,7 +48,7 @@ Note that here we do not have validation protocol, as to emphasise the importanc
 ### Utilities
 
 - `method`: Contains all the useful methods/functions for this tutorial.
-- `mmt-model-files`: Ion channel model in Myokit `mmt` format.
+- `mmt-model-files`: action potential models in Myokit `mmt` format.
 
 ### Tests
 
