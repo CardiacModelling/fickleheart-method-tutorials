@@ -28,18 +28,18 @@ In this tutorial, we split our protocols into calibration and validation uses.
 Before calibration, run `generate-data.py` to generate synthetic data with i.i.d. Gaussian noise (create `data`).
 
 ### 1. Calibration with i.i.d. noise assumption
-1. Run `fit.py` with arguments `[which_model]` to calibrate the specified model. Alternatively run `fit-all.sh`.
+1. Run `fit.py` with argument `[which_model]` to calibrate the specified model. Alternatively run `fit-all.sh`.
 2. Run `predict.py` with arguments `[which_model]` and `[which_predict]` to predict the specified (protocol) data (in `./data`) with the specified model and calibrated model parameters (in `./out`). Alternatively run `predict-all.sh`.
-3. Run `compare.py` with arguments `[which_predict]` to compare the predictions of the specified (protocol) data (in `./data`) from the candidate models with the calibrated model parameters (in `./out`). Alternatively run `compare-all.sh`.
-4. Run `mcmc.py` with arguments `[which_model]` to run MCMC for the specified model. Alternatively run `mcmc-all.sh`.
+3. Run `compare.py` with argument `[which_predict]` to compare the predictions of the specified (protocol) data (in `./data`) from the candidate models with the calibrated model parameters (in `./out`). Alternatively run `compare-all.sh`.
+4. Run `mcmc.py` with argument `[which_model]` to run MCMC for the specified model. Alternatively run `mcmc-all.sh`.
 
 ### 2. Calibration with discrepancy model: GP(t)
-1. Run `fit-gp.py` with arguments `[which_model]` to calibrate the specified model.
-2. Run `mcmc-gp.py` with arguments `[which_model]` to run MCMC for the specified model.
+1. Run `fit-gp.py` with argument `[which_model]` to calibrate the specified model.
+2. Run `mcmc-gp.py` with argument `[which_model]` to run MCMC for the specified model.
 
 ### 3. Calibration with discrepancy model: GP(O,V)
-1. Run `fit-gp-ov.py` with arguments `[which_model]` to calibrate the specified model.
-2. Run `mcmc-gp-ov.py` with arguments `[which_model]` to run MCMC for the specified model.
+1. Run `fit-gp-ov.py` with argument `[which_model]` to calibrate the specified model.
+2. Run `mcmc-gp-ov.py` with argument `[which_model]` to run MCMC for the specified model.
 
 ### 4. Calibration with discrepancy model: ARMA(p,q)
 1. Run `mcmc-arma.py` with arguments `[which_model]`, `[arma_p]`, and `[arma_q]` to run MCMC for the specified model, where `[arma_p]` and `[arma_q]` are integers specifying the order of the AR and MA models, respectively.
@@ -52,6 +52,15 @@ We use ARMA(2,2) model throughout the paper.
 4. Run `posterior-gp-ov.py` with arguments `[which_model]`, `[arma_p]`, and `[arma_q]` to generate posterior predictive with ARMA(p,q) discrepancy model. Alternatively run `posterior-arma.sh`.
 
 Alternatively, run `posterior-all.sh` to generate all the posterior predictive for all models in one go.
+
+### 6. Plot final figures (comparison)
+1. Run `compare-posteriors.py` with argument `[which_model]` to plot the marginal posterior distributions for the specified model, for all discrepancy models. Alternatively run `compare-posteriors.sh`.
+2. Run `compare-pp.py` with arguments `[which_model]` and `[which_predict]` to plot the posterior predictive for the specified model and protocol/data, for all discrepancy models. Alternatively run `compare-pp.sh`.
+3. Run `compare-evidence.py` with argument `[which_model]` to generate a table (in PDF/PNG format) showing the marginal likelihood of the specified model, for all discrepancy models and protocols/data.
+4. Run `compare-error-mean.py` with argument `[which_model]` to generate a table (in PDF/PNG format) showing the error mean of the specified model, for all discrepancy models and protocols/data.
+5. Run `compare-mean-error.py` with argument `[which_model]` to generate a table (in PDF/PNG format) showing the mean error of the specified model, for all discrepancy models and protocols/data.
+
+Alternatively, run `compare-tables.sh` to generate all the tables (Steps 3-5) in one go.
 
 ### Output
 
