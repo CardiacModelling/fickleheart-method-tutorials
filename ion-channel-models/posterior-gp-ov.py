@@ -53,6 +53,20 @@ else:
     raise ValueError('Require to specify either \'-v\' or \'-ov\'.')
 NUM_IND_THIN = 1000
 
+if '--rbf' in sys.argv:
+    kern_choice = 'rbf'
+elif '--matern12' in sys.argv:
+    kern_choice = 'matern12'
+elif '--matern32' in sys.argv:
+    kern_choice = 'matern32'
+elif '--OU' in sys.argv:
+    kern_choice = 'OU'
+else:
+    kern_choice = 'rbf'
+
+print('Running with kernel: ', kern_choice)
+addonname = '' if kern_choice == 'rbf' else '-' + kern_choice
+
 # Get all input variables
 import importlib
 sys.path.append('./mmt-model-files')
@@ -62,9 +76,9 @@ info = importlib.import_module(info_id)
 data_dir = './data'
 
 if USE_PROBABILITY_WITH_VOLTAGE:
-    savedir = './fig/mcmc-' + info_id + '-gp-ov'
+    savedir = './fig/mcmc-' + info_id + '-gp-ov' + addonname
 else:
-    savedir = './fig/mcmc-' + info_id + '-gp-v'
+    savedir = './fig/mcmc-' + info_id + '-gp-v' + addonname
 if not os.path.isdir(savedir):
     os.makedirs(savedir)
 if not os.path.isdir(savedir + '/raw'):
@@ -75,9 +89,9 @@ print('Predicting ', data_file_name)
 saveas = info_id + '-sinewave-' + which_predict
 
 if USE_PROBABILITY_WITH_VOLTAGE:
-    loaddir = './out/mcmc-' + info_id + '-gp-ov'
+    loaddir = './out/mcmc-' + info_id + '-gp-ov' + addonname
 else:
-    loaddir = './out/mcmc-' + info_id + '-gp-v'
+    loaddir = './out/mcmc-' + info_id + '-gp-v' + addonname
 loadas = info_id + '-sinewave'
 
 # Protocol
@@ -151,7 +165,7 @@ NUM_IND_THIN = 1000
 problem = pints.SingleOutputProblem(model, times, data)
 loglikelihood = DiscrepancyLogLikelihood(problem, voltage=voltage,
         num_ind_thin=NUM_IND_THIN, use_open_prob=USE_PROBABILITY_WITH_VOLTAGE,
-        downsample=None)
+        downsample=None, kern_choice=kern_choice)
 logmodelprior = LogPrior[info_id](transform_to_model_param,
         transform_from_model_param)
 lognoiseprior = HalfNormalLogPrior(sd=25, transform=True)
@@ -206,7 +220,7 @@ ind_v = v_training_protocol[::NUM_IND_THIN, :]
 v_valid_protocol = voltage.reshape((-1, 1)) 
 ppc_sampler_mean, ppc_sampler_var = _create_theano_conditional_graph_voltage(
         training_data, v_training_protocol, ind_v, v_valid_protocol,
-        use_open_prob=USE_PROBABILITY_WITH_VOLTAGE)
+        use_open_prob=USE_PROBABILITY_WITH_VOLTAGE, kern_choice=kern_choice)
 if USE_PROBABILITY_WITH_VOLTAGE:
     nds = 4  # Number of discrepancy parameters
     # set simulate() to return (current, open)

@@ -53,7 +53,7 @@ We use ARMA(2,2) model throughout the paper.
 1. Run `posterior.py` with arguments `[which_model]` and `[which_predict]` to generate posterior predictive with i.i.d. noise assumption. Alternatively run `posterior.sh`.
 2. Run `posterior-gp.py` with arguments `[which_model]` and `[which_predict]` to generate posterior predictive with GP(t) discrepancy model. Alternatively run `posterior-gp.sh`.
 3. Run `posterior-gp-ov.py` with arguments `[which_model]` and `[which_predict]`, together with a `-ov` flag, to generate posterior predictive with GP(O,V) discrepancy model. Alternatively run `posterior-gp-ov.sh`.
-4. Run `posterior-gp-ov.py` with arguments `[which_model]`, `[arma_p]`, and `[arma_q]` to generate posterior predictive with ARMA(p,q) discrepancy model. Alternatively run `posterior-arma.sh`.
+4. Run `posterior-arma.py` with arguments `[which_model]`, `[arma_p]`, and `[arma_q]` to generate posterior predictive with ARMA(p,q) discrepancy model. Alternatively run `posterior-arma.sh`.
 
 Alternatively, run `posterior-all.sh` to generate all the posterior predictive for all models in one go.
 
