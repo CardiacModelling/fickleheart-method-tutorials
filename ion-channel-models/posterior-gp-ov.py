@@ -289,7 +289,11 @@ for ind in np.random.choice(range(0, ppc_size), 1000, replace=False):
     # To compute E[posterior]
     params = np.copy(ppc_samples[ind, :])
     params[-nds:] = np.log(params[-nds:])
-    posterior_all.append(logposterior(params))
+    lp = logposterior(params)
+    if np.isfinite(lp):
+        posterior_all.append(lp)
+    else:
+        print(ind, params, lp)
 
 # Compute E[rmse]
 expected_gp_rmse = np.mean(gp_rmse, axis=0)
