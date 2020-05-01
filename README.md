@@ -1,6 +1,7 @@
 # Model calibration with discrepancy 
 
 This repo contains the code for reproducing the results in the examples in the paper "*Considering discrepancy when calibrating a mechanistic electrophysiology model*" by Lei, Ghosh, Whittaker, Aboelkassem, Beattie, Cantwell, Delhaas, Houston, Novaes, Panfilov, Pathmanathan, Riabiz, dos Santos, Walmsley, Worden, Mirams, and Wilkinson.
+[arXiv:2001.04230](https://arxiv.org/abs/2001.04230)
 
 ### Requirements
 
