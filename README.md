@@ -36,7 +36,7 @@ See [ion-channel-models](./ion-channel-models).
 
 ## Acknowledging this work
 
-If you publish any work based on the contents of this repository please cite:
+If you publish any work based on the contents of this repository please cite ([CITATION file](CITATION)):
 
 Lei, C.L. _et al._
 (2020).
