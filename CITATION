@@ -1,0 +1,23 @@
+To cite this review paper in publications, please use:
+
+Lei, C.L., Ghosh, S., Whittaker, D.G., Aboelkassem, Y., Beattie, K.A., Cantwell, C.D., Delhaas, T., Houston, C., Novaes, G.M., Panfilov, A.V., Pathmanathan, P., Riabiz, M., dos Santos, R.W., Walmsley, J., Worden, K., Mirams, G.R., Wilkinson, R.D.
+(2020).
+Considering discrepancy when calibrating a mechanistic electrophysiology model.
+Philosophical Transactions of the Royal Society A, 378: 20190349.
+
+https://doi.org/10.1098/rsta.2019.0349
+
+A BibTeX entry for LaTeX users is
+
+@article{Lei2020Discrepancy,
+  author = {Lei, Chon Lok  and Ghosh, Sanmitra  and Whittaker, Dominic G.  and Aboelkassem, Yasser  and Beattie, Kylie A.  and Cantwell, Chris D.  and Delhaas, Tammo  and Houston, Charles  and Novaes, Gustavo Montes  and Panfilov, Alexander V.  and Pathmanathan, Pras  and Riabiz, Marina  and dos Santos, Rodrigo Weber  and Walmsley, John  and Worden, Keith  and Mirams, Gary R.  and Wilkinson, Richard D. },
+  title = {Considering discrepancy when calibrating a mechanistic electrophysiology model},
+  journal = {Philosophical Transactions of the Royal Society A: Mathematical, Physical and Engineering Sciences},
+  volume = {378},
+  number = {2173},
+  pages = {20190349},
+  year = {2020},
+  doi = {10.1098/rsta.2019.0349},
+  URL = {https://royalsocietypublishing.org/doi/abs/10.1098/rsta.2019.0349},
+  eprint = {https://royalsocietypublishing.org/doi/pdf/10.1098/rsta.2019.0349}
+}
