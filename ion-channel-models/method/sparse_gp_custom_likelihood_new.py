@@ -37,6 +37,10 @@ class GpCovariance(object):
             )
         return tt.clip(sqd, 0.0, np.inf)
 
+    def euclidean_dist(self, X, Xs):
+        r2 = self.square_dist(X, Xs)
+        return tt.sqrt(r2 + 1e-12)
+
 class RbfKernel(GpCovariance):
 
     def __call__(self, X, Xs=None, diag=False):
@@ -46,7 +50,25 @@ class RbfKernel(GpCovariance):
         else:
             return self.sf2*tt.exp(-0.5 * self.square_dist(X, Xs))
 
-def _create_theano_likelihood_graph_voltage(data, X, ind_X, n_X, n_inducing_X, use_open_prob=False, approx='FITC'):
+class Matern32(GpCovariance):
+    def __call__(self, X, Xs=None, diag=False):
+
+        if diag==True:
+            return self.sf2*tt.alloc(1.0, X.shape[0])
+        else:
+            euclidean_dist = self.euclidean_dist(X, Xs)
+            return self.sf2 * (1.0 + np.sqrt(3.0) * euclidean_dist) * tt.exp(-np.sqrt(3.0) * euclidean_dist)
+
+class Matern12(GpCovariance):
+    def __call__(self, X, Xs=None, diag=False):
+
+        if diag==True:
+            return self.sf2*tt.alloc(1.0, X.shape[0])
+        else:
+            euclidean_dist = self.euclidean_dist(X, Xs)
+            return self.sf2 * tt.exp(-euclidean_dist)
+
+def _create_theano_likelihood_graph_voltage(data, X, ind_X, n_X, n_inducing_X, use_open_prob=False, approx='FITC', kern_choice='rbf'):
 
     rho = tt.dvector('rho')
     ker_sigma = tt.dscalar('ker_sigma')
@@ -68,7 +90,18 @@ def _create_theano_likelihood_graph_voltage(data, X, ind_X, n_X, n_inducing_X, u
         V_O = V
         inducing_V_O = inducing_V
 
-    cov_func = RbfKernel(rho, ker_sigma)
+    if kern_choice=='rbf':
+        ### This one is used in the paper ####
+        cov_func = RbfKernel(rho, ker_sigma)
+    elif kern_choice=='matern12':
+        ### This one will give rough process (non-smooth) ####
+        cov_func = Matern12(rho, ker_sigma)
+    elif kern_choice =='matern32':
+        ### This one is a half-way house between a rough and a smooth one ####
+        cov_func = Matern32(rho, ker_sigma)
+    elif kern_choice=='OU':
+        ### This one is exactly what the reviewer wanted ####
+        cov_func = Matern12(2.0*rho, ker_sigma)
 
     sigma2 = tt.square(sigma)
     Kuu = cov_func(inducing_V_O)
@@ -110,7 +143,7 @@ def _create_theano_likelihood_graph_voltage(data, X, ind_X, n_X, n_inducing_X, u
         return theano.function([current,rho,ker_sigma,sigma],ll,on_unused_input='ignore')
 
 
-def _create_theano_conditional_graph_voltage(data, X, ind_X, X_new, use_open_prob=False, approx='FITC'):
+def _create_theano_conditional_graph_voltage(data, X, ind_X, X_new, use_open_prob=False, approx='FITC', kern_choice='rbf'):
 
         
         ker_sigma = tt.dscalar('ker_sigma')
@@ -137,8 +170,18 @@ def _create_theano_conditional_graph_voltage(data, X, ind_X, X_new, use_open_pro
             inducing_V_O = inducing_V   
             V_O_new = V_new   
               
-
-        cov_func = RbfKernel(rho, ker_sigma)
+        if kern_choice=='rbf':
+            ### This one is used in the paper ####
+            cov_func = RbfKernel(rho, ker_sigma)
+        elif kern_choice=='matern12':
+             ### This one will give rough process (non-smooth) ####
+            cov_func = Matern12(rho, ker_sigma)
+        elif kern_choice =='matern32':
+            ### This one is a half-way between a rough and a smooth one ####
+            cov_func = Matern32(rho, ker_sigma)
+        elif kern_choice=='OU':
+            ### This one is exactly what the reviewer wanted ####
+            cov_func = Matern12(2.0*rho, ker_sigma)
 
         sigma2 = tt.square(sigma)
         Kuu = cov_func(inducing_V_O)
@@ -178,7 +221,7 @@ class DiscrepancyLogLikelihood(pints.ProblemLogLikelihood):
     as a reduced rank Gaussian process using the FITC likelihood
     """
 
-    def __init__(self, problem, voltage, num_ind_thin, use_open_prob=False, downsample=None):
+    def __init__(self, problem, voltage, num_ind_thin, use_open_prob=False, downsample=None, kern_choice='rbf'):
         super(DiscrepancyLogLikelihood, self).__init__(problem)
 
         self._no = problem.n_outputs()
@@ -190,6 +233,7 @@ class DiscrepancyLogLikelihood(pints.ProblemLogLikelihood):
         self._nu = len(self._inducing_voltage)
         self._downsample = downsample if downsample is not None else 1
         self._use_open_prob = use_open_prob
+        self._kern_choice = kern_choice
         data = self._values[::self._downsample].reshape((-1,))
         v = self._voltage[::self._downsample].reshape((-1,1)) 
         ind_v = self._inducing_voltage.reshape((-1,1))
@@ -199,7 +243,7 @@ class DiscrepancyLogLikelihood(pints.ProblemLogLikelihood):
         else:
             self._nds = 3
 
-        self._loglikelihood = _create_theano_likelihood_graph_voltage(data, v, ind_v, self._nt, self._nu, use_open_prob=self._use_open_prob)
+        self._loglikelihood = _create_theano_likelihood_graph_voltage(data, v, ind_v, self._nt, self._nu, use_open_prob=self._use_open_prob, kern_choice=self._kern_choice)
 
         self._n_parameters = self._np + self._nds
                 

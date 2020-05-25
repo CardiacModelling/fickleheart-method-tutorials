@@ -32,6 +32,19 @@ if which_model not in model_list:
     raise ValueError('Input model %s is not available in the model list' \
             % which_model)
 
+if '--rbf' in sys.argv:
+    kern_choice = 'rbf'
+elif '--matern12' in sys.argv:
+    kern_choice = 'matern12'
+elif '--matern32' in sys.argv:
+    kern_choice = 'matern32'
+elif '--OU' in sys.argv:
+    kern_choice = 'OU'
+else:
+    kern_choice = 'rbf'
+
+print('Running with kernel: ', kern_choice)
+
 # Get all input variables
 import importlib
 sys.path.append('./mmt-model-files')
@@ -40,7 +53,8 @@ info = importlib.import_module(info_id)
 
 data_dir = './data'
 
-savedir = './out/' + info_id + '-gp-ov'
+addonname = '' if kern_choice == 'rbf' else '-' + kern_choice
+savedir = './out/' + info_id + '-gp-ov' + addonname
 if not os.path.isdir(savedir):
     os.makedirs(savedir)
 
@@ -99,7 +113,7 @@ NUM_IND_THIN = 1000
 problem = pints.SingleOutputProblem(model, times, data)
 loglikelihood = DiscrepancyLogLikelihood(problem, voltage=voltage,
         num_ind_thin=NUM_IND_THIN, use_open_prob=USE_PROBABILITY_WITH_VOLTAGE,
-        downsample=None)
+        downsample=None, kern_choice=kern_choice)
 logmodelprior = LogPrior[info_id](transform_to_model_param,
         transform_from_model_param)
 # Priors for discrepancy
@@ -124,9 +138,15 @@ priorparams = np.copy(info.base_param)
 transform_priorparams = transform_from_model_param(priorparams)
 # Stack non-model parameters together
 if USE_PROBABILITY_WITH_VOLTAGE:
-    initial_rho = [0.5, 0.5]  # Kernel hyperparameter \rho
+    if kern_choice not in ['OU', 'matern12']:
+        initial_rho = [0.5, 0.5]  # Kernel hyperparameter \rho
+    else:
+        initial_rho = [2.0, 2.0]  # Kernel hyperparameter \rho
 else:
-    initial_rho = 0.5
+    if kern_choice not in ['OU', 'matern12']:
+        initial_rho = 0.5
+    else:
+        initial_rho = 2.0
 initial_ker_sigma = 5.0  # Kernel hyperparameter \ker_sigma
 priorparams = np.hstack((priorparams, noise_sigma, initial_rho,
         initial_ker_sigma))

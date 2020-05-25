@@ -6,12 +6,6 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-def rmse(t1, t2):
-    # Root mean square error
-    return np.sqrt(np.mean(np.power(np.subtract(t1, t2), 2)))
-
-error_measure = rmse
-
 model_list = ['A', 'B']
 predict_list = ['Sinewave', 'Staircase', 'AP'][::-1]
 discrepancy_list = ['', '-gp', '-gp-ov', '-arma_2_2']
@@ -52,7 +46,7 @@ for j, which_predict in enumerate(predict_list):
 
 # Plot
 cmap = matplotlib.cm.get_cmap('plasma_r')
-fmat = '{:<1.2f}'
+fmat = '{:.1e}'
 
 targs = {
     'horizontalalignment': 'center',
@@ -75,7 +69,16 @@ def row(axes, y, data, std=None):
         text = fmat.format(e).strip()
         if std:
             text += ' (' + fmat.format(std[i]).strip() + ')'
-        plt.text(x + w / 2., y + h / 2., text, **targs)
+
+        if text == '0.0e+00':
+            prettytext = '0'
+        elif text == '-inf':
+            prettytext = text
+        else:
+            b = text.split('e')
+            prettytext = r'$%s\times10^{%s}$' % (b[0], int(b[1]))
+
+        plt.text(x + w / 2., y + h / 2., prettytext, **targs)
 
 plt.figure(figsize=(5.2, 1.8))
 plt.subplots_adjust(0.005, 0.005, 0.995, 0.995)
