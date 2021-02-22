@@ -9,7 +9,7 @@ pip install --upgrade pip
 
 ### Install dependencies
 pip3 install myokit                   # Get Myokit, might need external installation for sundials
-pip3 install git+https://github.com/pints-team/pints  # Get PINTS
+pip3 install pints                    # Get PINTS
 pip3 install Theano                   # Get Theano
 pip3 install statsmodels              # Get StatsModels
 pip3 install joblib                   # Get Joblib
