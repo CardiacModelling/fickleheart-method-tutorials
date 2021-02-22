@@ -9,7 +9,7 @@ setup(
     maintainer_email='chonloklei@gmail.com',
     install_requires=[
         'myokit',
-        'pints @ git+https://github.com/pints-team/pints@master#egg=pints',
+        'pints',
         'joblib',
         'theano',
         'statsmodels',
