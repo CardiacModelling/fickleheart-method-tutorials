@@ -12,6 +12,8 @@ The code requires Python (3.5+) and the following dependencies:
 [StatsModels](https://www.statsmodels.org/stable/install.html),
 [Joblib](https://joblib.readthedocs.io/en/latest/installing.html).
 
+In addition, Myokit requires a working compiler (e.g. gcc) and Sundials (CVODE) to be installed. For instructions, see http://myokit.org/install.
+
 To setup, either run (for Linux/macOS users):
 ```console
 $ bash setup.sh
