@@ -8,11 +8,11 @@ setup(
     maintainer='Chon Lok Lei',
     maintainer_email='chonloklei@gmail.com',
     install_requires=[
-        'myokit',
-        'pints @ git+https://github.com/pints-team/pints@master#egg=pints',
-        'joblib',
-        'theano',
-        'statsmodels',
+        'myokit==1.28.9',
+        'pints==0.2.2',
+        'joblib==0.13.2',
+        'theano==1.0.4',
+        'statsmodels==0.10.1',
     ],
 )
 
