@@ -10,7 +10,7 @@ setup(
     install_requires=[
         'myokit==1.28.9',
         'pints==0.2.2',
-        'joblib==0.13.2',
+        'joblib==1.2.0',
         'theano==1.0.4',
         'statsmodels==0.10.1',
     ],
